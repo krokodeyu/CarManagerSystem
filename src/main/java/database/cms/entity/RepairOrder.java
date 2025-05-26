@@ -7,6 +7,14 @@ import java.util.List;
 @Entity
 @Table(name = "repair_orders")
 public class RepairOrder {
+
+    public enum OrderStatus {
+        UNACCEPTED,
+        ONGOING,
+        FINISHED,
+        CANCELLED
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +32,7 @@ public class RepairOrder {
     private Technician technician;
 
     @Column(name = "status", nullable = false)
-    private String status;
+    private OrderStatus status;
 
     @Column(name = "total_cost", nullable = false)
     private Double totalCost;
@@ -35,7 +43,7 @@ public class RepairOrder {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "repairOrder")
+    @OneToMany(mappedBy = "repairOrder", cascade = CascadeType.REMOVE)
     private List<RepairItem> repairItems;
 
     @OneToMany(mappedBy = "repairOrder")
@@ -44,5 +52,4 @@ public class RepairOrder {
     @OneToMany(mappedBy = "repairOrder")
     private List<Feedback> feedbacks;
 
-    // Getters and setters omitted for brevity
 }

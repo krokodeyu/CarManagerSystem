@@ -23,5 +23,4 @@ public class OrderPart {
     @Column(name = "unit_price", nullable = false)
     private Double unitPrice;
 
-    // Getters and setters omitted for brevity
 }
