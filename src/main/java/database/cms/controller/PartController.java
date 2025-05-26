@@ -1,9 +1,13 @@
 package database.cms.controller;
 
 import database.cms.service.PartService;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RestController
+@RequestMapping("api/parts")
 public class PartController {
 
     private final PartService partService;
