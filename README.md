@@ -1,4 +1,4 @@
-## 车辆管理系统
+# 车辆管理系统project
 
 需要实现的api：
 
@@ -104,3 +104,14 @@
 | `GET` | `/stats/costs`                  | 月/季度维修费用分析 |
 | `GET` | `/stats/technician-performance` | 不同工种维修量统计  |
 | `GET` | `/stats/unresolved-orders`      | 当前未完成订单列表  |
+
+---
+
+## 管理员控制`/admin`
+
+| 方法    | 路径                   | 描述     |
+| ----- | -------------------- | ------ |
+| `GET` | `/admin/users`       |        |
+| `GET` | `/admin/vehicles`    |        |
+| `GET` | `/admin/technicians` | 维修人员信息 |
+| `GET` | `/admin/orders`      | 订单列表   |
