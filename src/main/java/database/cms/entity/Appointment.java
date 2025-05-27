@@ -1,8 +1,13 @@
 package database.cms.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name = "appointments")
 public class Appointment {
@@ -29,9 +34,11 @@ public class Appointment {
     private String status;
 
     @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     // Getters and setters omitted for brevity

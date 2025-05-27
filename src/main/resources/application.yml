@@ -6,7 +6,7 @@ spring:
     url: jdbc:mysql://localhost:3306/cms_database
     username: root
     password: 409852
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   # ================= JPA 配置 =================
   jpa:

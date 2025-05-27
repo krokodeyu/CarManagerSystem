@@ -1,6 +1,8 @@
 package database.cms.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,6 +23,7 @@ public class RepairItem {
     private Double cost;
 
     @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     // Getters and setters omitted for brevity

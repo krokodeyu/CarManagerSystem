@@ -2,6 +2,7 @@ package database.cms.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,7 @@ public class User {
     private String email;
 
     @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
@@ -33,7 +35,7 @@ public class User {
     @Column(name = "encrypted_password", nullable = false)
     private String encryptedPassword;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Vehicle> vehicles;
 
     @OneToMany(mappedBy = "user")
