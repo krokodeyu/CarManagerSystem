@@ -5,6 +5,8 @@ import database.cms.DTO.response.RegisterResponse;
 import database.cms.entity.User;
 import database.cms.exception.AuthErrorException;
 import database.cms.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,11 +14,13 @@ import java.time.LocalDateTime;
 @Service
 public class UserService {
 
+    private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     public RegisterResponse register(UserRegisterRequest request){
@@ -28,10 +32,12 @@ public class UserService {
         User user = new User();
         String name = request.name();
         String email = request.email();
+        String encryptedPassword = passwordEncoder.encode(request.password());
         LocalDateTime now = LocalDateTime.now();
         user.setName(name);
         user.setEmail(email);
         user.setCreatedAt(now);
+        user.setEncryptedPassword(encryptedPassword);
         userRepository.save(user);
 
         return new RegisterResponse(user.getId(), name, email, now);
