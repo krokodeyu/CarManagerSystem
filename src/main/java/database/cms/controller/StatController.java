@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("api/stats")
+@RequestMapping("/api/stats")
 public class StatController {
 
     private final StatService statService;

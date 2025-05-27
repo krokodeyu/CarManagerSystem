@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("api/feedbacks")
+@RequestMapping("/api/feedbacks")
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
