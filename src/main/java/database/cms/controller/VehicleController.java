@@ -11,6 +11,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/vehicles")
@@ -30,12 +32,19 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/{vehicleId}")
     public ResponseEntity<VehicleInfoResponse> getVehicle(
-            @RequestParam Long vehicleId
+            @PathVariable Long vehicleId
     ) {
             VehicleInfoResponse response = vehicleService.getVehicle(vehicleId);
             return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<List<VehicleInfoResponse>> getAllVehicles() {
+        List<VehicleInfoResponse> responses = vehicleService.getAllVehicles();
+        return ResponseEntity.ok(responses);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")

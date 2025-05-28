@@ -52,9 +52,7 @@ public class VehicleService {
     }
 
     @Transactional(readOnly = true)
-    public VehicleInfoResponse getVehicle(Long vehicleId) {
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() -> new ResourceNotFoundException("VEHICLE_NOT_FOUND", "车辆不存在"));
+    public VehicleInfoResponse generateResponse(Vehicle vehicle){
         List<Long> orderIds = new ArrayList<>();
         for (RepairOrder order : vehicle.getRepairOrders()) {
             orderIds.add(order.getId());
@@ -71,6 +69,13 @@ public class VehicleService {
                 orderIds,
                 appointmentIds
         );
+    }
+
+    @Transactional(readOnly = true)
+    public VehicleInfoResponse getVehicle(Long vehicleId) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new ResourceNotFoundException("VEHICLE_NOT_FOUND", "车辆不存在"));
+        return generateResponse(vehicle);
     }
 
     @Transactional
@@ -102,5 +107,15 @@ public class VehicleService {
                 .orElseThrow(() -> new ResourceNotFoundException("VEHICLE_NOT_FOUND", "车辆不存在"));
         vehicleRepository.delete(vehicle);
         return new MessageResponse("成功删除");
+    }
+
+    @Transactional(readOnly = true)
+    public List<VehicleInfoResponse> getAllVehicles() {
+        List<Vehicle> vehicles = vehicleRepository.findAll();
+        List<VehicleInfoResponse> responses = new ArrayList<>();
+        for (Vehicle vehicle : vehicles) {
+            responses.add(generateResponse(vehicle));
+        }
+        return responses;
     }
 }
