@@ -37,7 +37,7 @@ public class TechnicianController {
     }
 
     @GetMapping("/{technicianId}")
-    @PreAuthorize("hasRole('ADMIN') or #technicianId == authentication.principal.id")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(authentication, #technicianId)")
     public ResponseEntity<TechnicianInfoResponse> getTechnicianInfo(@PathVariable Long technicianId) {
         TechnicianInfoResponse response = technicianService.getInfo(technicianId);
         return ResponseEntity.ok(response);
