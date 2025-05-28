@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException() {
         ErrorResponse errorResponse = new ErrorResponse("ACCESS_DENIED", "权限不足");
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
