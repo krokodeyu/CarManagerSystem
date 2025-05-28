@@ -3,6 +3,7 @@ package database.cms.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +18,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Role role;
+    private Role role = Role.USER;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
@@ -30,6 +31,7 @@ public class User {
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "encrypted_password", nullable = false)

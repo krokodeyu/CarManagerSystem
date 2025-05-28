@@ -1,9 +1,13 @@
 package database.cms.controller;
 
+import database.cms.DTO.request.TechRegisterRequest;
+import database.cms.DTO.response.TechnicianInfoResponse;
 import database.cms.service.TechnicianService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -14,5 +18,28 @@ public class TechnicianController {
 
     public TechnicianController(TechnicianService technicianService) {
         this.technicianService = technicianService;
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<TechnicianInfoResponse> registerTechnician(
+            @RequestBody TechRegisterRequest request
+    ){
+        TechnicianInfoResponse response = technicianService.register(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<TechnicianInfoResponse>> getAllTechnicians() {
+        List<TechnicianInfoResponse> responses = technicianService.getAllInfo();
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/{technicianId}")
+    @PreAuthorize("hasRole('ADMIN') or #technicianId == authentication.principal.id")
+    public ResponseEntity<TechnicianInfoResponse> getTechnicianInfo(@PathVariable Long technicianId) {
+        TechnicianInfoResponse response = technicianService.getInfo(technicianId);
+        return ResponseEntity.ok(response);
     }
 }

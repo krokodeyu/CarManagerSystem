@@ -26,9 +26,11 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus mapErrorCodeToStatus(String errorCode) {
+        if(errorCode.endsWith("NOT_FOUND"))
+            return HttpStatus.NOT_FOUND;
         return switch (errorCode) {
             case "INVALID_LOGIN_INFO" -> HttpStatus.UNAUTHORIZED; // 401
-            case "USER_NOT_FOUND"-> HttpStatus.NOT_FOUND;         // 404
+            case "NOT_USER_PROPERTY" -> HttpStatus.FORBIDDEN;     // 403
             default -> HttpStatus.BAD_REQUEST;                    // 400
         };
     }
