@@ -6,6 +6,7 @@ import database.cms.entity.LoginInfo;
 import database.cms.entity.Technician;
 import database.cms.entity.User;
 import database.cms.exception.AuthErrorException;
+import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import database.cms.util.JWTUtil;
@@ -37,7 +38,9 @@ public class AuthService {
             return new JWTResponse(token);
         }
 
-        Technician tech = technicianRepository.findByName(name);
+        Technician tech = technicianRepository.findByName(name)
+                .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND", "无效的技工名称"));
+
         if(tech != null && passwordEncoder
                 .matches(request.password(), tech.getEncryptedPassword())) {
             LoginInfo loginInfo = new LoginInfo(tech.getId(), tech.getName(), tech.getRole());

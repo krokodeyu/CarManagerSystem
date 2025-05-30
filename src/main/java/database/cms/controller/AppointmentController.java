@@ -1,9 +1,26 @@
 package database.cms.controller;
 
+import database.cms.DTO.request.*;
+import database.cms.DTO.response.*;
+import database.cms.entity.User;
 import database.cms.service.AppointmentService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+/*预约管理 `/appointments`
+
+| 方法       | 路径                           | 描述        | 权限    |
+| -------- | ---------------------------- | --------- | ----- |
+| `POST`   | `/appointments`              | 创建预约      | user  |
+| `GET`    | `/appointments`              | 查询全部预约    | admin |
+| `GET`    | `/appointments/{id}`         | 查看预约详情    | all   |
+| `PUT`    | `/appointments/{id}`         | 修改预约信息    | user  |
+| `DELETE` | `/appointments/{id}`         | 取消预约      | user  |
+| `POST`   | `/appointments/{id}/confirm` | 确认预约并生成订单 | tech  |
+
+---*/
+
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -16,4 +33,39 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
+    @PostMapping("/create")
+    public ResponseEntity<AppointmentResponse> createAppointment (@RequestBody AppointmentRequest request){
+        AppointmentResponse response = appointmentService.createAppointment(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-all")
+    public ResponseEntity<AllAppointmentResponse> getAppointment (){
+        AllAppointmentResponse response = appointmentService.getAllAppointment();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-detail/{appointmentId}")
+    public ResponseEntity<AppointmentDetailResponse> getDetail (@PathVariable Long appointmentId){
+        AppointmentDetailResponse response = appointmentService.getAppointmentDetail(appointmentId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/revise")
+    public ResponseEntity<AppointmentRevisionResponse> reviseAppointment (@RequestBody AppointmentRevisionRequest request){
+        AppointmentRevisionResponse response = appointmentService.reviseAppointment(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/cancel")
+    public ResponseEntity<AppointmentCancelResponse> cancelAppointment (@RequestBody AppointmentCancelRequest request){
+        AppointmentCancelResponse response = appointmentService.cancelAppointment(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/confirm")
+    public ResponseEntity<AppointmentConfirmationResponse> confirmAppointment (@RequestBody AppointmentConfirmationRequest request){
+        AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

@@ -11,8 +11,8 @@ public class RepairItem {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "repair_order_id", nullable = false)
-    private RepairOrder repairOrder;
+    @JoinColumn(name = "repair_appointment_id", nullable = false)
+    private Appointment appointment;
 
     @Column(name = "description", nullable = false)
     private String description;

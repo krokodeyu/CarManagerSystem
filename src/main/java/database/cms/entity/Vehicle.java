@@ -1,11 +1,14 @@
 package database.cms.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "vehicles")
+@Data
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,10 +37,19 @@ public class Vehicle {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "vehicle")
-    private List<RepairOrder> repairOrders;
-
-    @OneToMany(mappedBy = "vehicle")
     private List<Appointment> appointments;
 
+
+    public Vehicle(Long id, User user, String make, String model, String licensePlate) {
+        this.id = id;
+        this.user = user;
+        this.make = make;
+        this.model = model;
+        this.licensePlate = licensePlate;
+    }
+
+    public Vehicle() {
+
+    }
     // Getters and setters omitted for brevity
 }

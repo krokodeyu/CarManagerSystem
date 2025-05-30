@@ -4,14 +4,14 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "order_parts")
-public class OrderPart {
+public class AppointmentPart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "repair_order_id", nullable = false)
-    private RepairOrder repairOrder;
+    @JoinColumn(name = "repair_appointment_id", nullable = false)
+    private Appointment appointment;
 
     @ManyToOne
     @JoinColumn(name = "spare_part_id", nullable = false)

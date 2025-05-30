@@ -1,6 +1,10 @@
 package database.cms.DTO.response;
 
-public record AllUsersResponse(
+import database.cms.entity.User;
 
+import java.util.List;
+
+public record AllUsersResponse(
+        List<User> users
 ) {
 }

@@ -122,7 +122,6 @@
 | `GET`  | `/admin/technicians` | 查询维修人员      | admin |
 | `GET`  | `/admin/salaries`    | 查询所有工时费发放记录 | admin |
 | `GET`  | `/admin/vehicles`    | 查询车辆        | admin |
-| `GET`  | `/admin/technicians` | 维修人员信息      | admin |
 | `GET`  | `/admin/orders`      | 查询特定维修工单信息  | admin |
 | `GET`  | `/admin/records`     | 查询所有历史维修记录  | admin |
 | `POST` | `/admin/salaries`    | 发放工时费       | admin |

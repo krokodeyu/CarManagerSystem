@@ -1,23 +1,48 @@
 package database.cms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "appointments")
+@Data
 public class Appointment {
+
+    public Appointment() {
+
+    }
+
+    public enum Status {
+        UNACCEPTED,
+        ONGOING,
+        CANCELLED,
+        FINISHED,
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "appointment_id")
+    private String appointmentId;
+
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "technician_id")
     private Technician technician;
@@ -25,14 +50,37 @@ public class Appointment {
     @Column(name = "appointment_time", nullable = false)
     private LocalDateTime appointmentTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private Status status = Status.UNACCEPTED;
 
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "repairOrder", cascade = CascadeType.REMOVE)
+    private List<RepairItem> repairItems;
+
+    @OneToMany(mappedBy = "repairOrder")
+    private List<AppointmentPart> appointmentParts;
+
+    @OneToMany(mappedBy = "repairOrder")
+    private List<Feedback> feedbacks;
+
+    @Column(name = "total_cost", nullable = false)
+    private Double totalCost;
+
+
+    public Appointment(Long id, User user, Vehicle vehicle, Technician technician, Status status) {
+        this.id = id;
+        this.user = user;
+        this.vehicle = vehicle;
+        this.technician = technician;
+        this.status = status;
+    }
     // Getters and setters omitted for brevity
 }

@@ -3,10 +3,10 @@ spring:
     exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
   # ================= 数据库连接配置 =================
   datasource:
-    url: jdbc:mysql://localhost:3306/cms_database
+    url: jdbc:mysql://localhost:3306/1?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
-    password: 409852
-    driver-class-name: com.mysql.jdbc.Driver
+    password: allurelove6
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   # ================= JPA 配置 =================
   jpa:
@@ -32,15 +32,3 @@ spring:
 server:
   address: 0.0.0.0
   port: 8080
-
-# ================= 日志配置 =================
-logging:
-  file:
-    name: logs/app.log    # 指定日志文件名（优先使用name，与path二选一）
-    # path: /var/logs/    # 或指定目录（生成的文件名为spring.log）
-  level:
-    root: info            # 全局日志级别
-    com.example: debug    # 指定包的日志级别
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

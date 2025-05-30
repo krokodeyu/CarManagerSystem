@@ -16,7 +16,7 @@ public class Feedback {
 
     @ManyToOne
     @JoinColumn(name = "repair_order_id", nullable = false)
-    private RepairOrder repairOrder;
+    private Appointment appointment;
 
     @Column(name = "rating", nullable = false)
     private Integer rating;

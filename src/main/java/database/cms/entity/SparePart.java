@@ -27,6 +27,6 @@ public class SparePart {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "sparePart")
-    private List<OrderPart> orderParts;
+    private List<AppointmentPart> appointmentParts;
 
 }

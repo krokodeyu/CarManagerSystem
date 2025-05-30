@@ -34,9 +34,17 @@ public class Technician {
     private String encryptedPassword;
 
     @OneToMany(mappedBy = "technician")
-    private List<RepairOrder> repairOrders;
-
-    @OneToMany(mappedBy = "technician")
     private List<Appointment> appointments;
 
+
+    public Technician(Long id, String name, String encryptedPassword) {
+        this.id = id;
+        this.name = name;
+        this.encryptedPassword = encryptedPassword;
+
+    }
+
+    public Technician() {
+
+    }
 }

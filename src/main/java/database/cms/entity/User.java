@@ -10,6 +10,18 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User {
+
+    public User(Long id, String name, Role role, String encryptedPassword) {
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        this.encryptedPassword = encryptedPassword;
+    }
+
+    public User() {
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,9 +52,8 @@ public class User {
     private List<Appointment> appointments;
 
     @OneToMany(mappedBy = "user")
-    private List<RepairOrder> repairOrders;
-
-    @OneToMany(mappedBy = "user")
     private List<Feedback> feedbacks;
+
+
 
 }
