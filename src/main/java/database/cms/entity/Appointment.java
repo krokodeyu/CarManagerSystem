@@ -9,7 +9,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "appointments")
 @Data
@@ -55,12 +54,10 @@ public class Appointment {
     @Column(name = "status", nullable = false)
     private Status status = Status.UNACCEPTED;
 
-    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
