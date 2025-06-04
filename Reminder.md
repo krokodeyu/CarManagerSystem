@@ -17,7 +17,7 @@ public List<User> getAllUsers() {
 
 1. yjh：feedback，appointment（重构为订单），parts， 建表语句，ER图
 
-2. lrz:  完善测试stat（事务测试），vehicle和tech测试，
+2. lrz:  完善测试stat（事务测试），vehicle和tech测试，催单功能
 
 3. 弃用adminController, 改为statController
 

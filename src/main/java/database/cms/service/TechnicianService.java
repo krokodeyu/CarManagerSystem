@@ -1,9 +1,8 @@
 package database.cms.service;
 
 import database.cms.DTO.request.TechRegisterRequest;
+import database.cms.DTO.request.TechUpdateRequest;
 import database.cms.DTO.response.TechnicianInfoResponse;
-import database.cms.entity.Appointment;
-import database.cms.entity.RepairOrder;
 import database.cms.entity.TechSpec;
 import database.cms.entity.Technician;
 import database.cms.exception.AuthErrorException;
@@ -80,6 +79,23 @@ public class TechnicianService {
                 name,
                 phone,
                 spec.getString(),
+                tech.getCreatedAt()
+        );
+    }
+
+    @Transactional
+    public TechnicianInfoResponse update(Long technicianId, TechUpdateRequest request) {
+        Technician tech = technicianRepository.findById(technicianId)
+                .orElseThrow(() -> new ResourceNotFoundException("TECH_NOT_FOUND", "未找到修理人员"));
+        tech.setPhone(request.phone());
+        tech.setSpecialization(request.techSpec());
+        String encryptedPassword = passwordEncoder.encode(request.password());
+        tech.setEncryptedPassword(encryptedPassword);
+        return new TechnicianInfoResponse(
+                tech.getId(),
+                tech.getName(),
+                tech.getPhone(),
+                tech.getSpecialization().getString(),
                 tech.getCreatedAt()
         );
     }

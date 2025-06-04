@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal.id")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(authentication, #userId)")
     public ResponseEntity<UserInfoResponse> updateUser(
             @RequestBody UserUpdateRequest request,
             @PathVariable Long userId

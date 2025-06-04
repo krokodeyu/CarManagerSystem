@@ -32,6 +32,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECH') or @securityService.isVehicleOwner(authentication, vehicleId)")
     @GetMapping("/{vehicleId}")
     public ResponseEntity<VehicleInfoResponse> getVehicle(
             @PathVariable Long vehicleId
@@ -47,7 +48,7 @@ public class VehicleController {
         return ResponseEntity.ok(responses);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isVehicleOwner(authentication, #request.vehicleId())")
     @PutMapping
     public ResponseEntity<VehicleChangeResponse> updateVehicle(
             @RequestBody ChangeVehicleRequest request,
@@ -57,10 +58,19 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isVehicleOwner(authentication, #vehicleId)")
     @DeleteMapping("/{vehicleId}")
     public ResponseEntity<MessageResponse> deleteVehicle(@PathVariable Long vehicleId){
         MessageResponse response = vehicleService.delete(vehicleId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(authentication, #userId)")
+    @GetMapping
+    public ResponseEntity<List<VehicleInfoResponse>> getUserVehicles(
+            @RequestParam Long userId
+    ) {
+        List<VehicleInfoResponse> response = vehicleService.getUserVehicles(userId);
         return ResponseEntity.ok(response);
     }
 }

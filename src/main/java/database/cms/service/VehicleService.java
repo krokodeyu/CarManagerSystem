@@ -83,14 +83,6 @@ public class VehicleService {
                                         Authentication authentication) {
         Vehicle vehicle = vehicleRepository.findById(request.vehicleId())
                 .orElseThrow(() -> new ResourceNotFoundException("VEHICLE_NOT_FOUND", "车辆不存在"));
-
-        String role = authentication.getAuthorities().iterator().next().getAuthority();
-        if(!role.equals("ROLE_ADMIN")) {
-            User user = userRepository.findByName(authentication.getName());
-            if(!Objects.equals(vehicle.getUser().getId(), user.getId())) {
-                throw new AuthErrorException("NOT_USER_PROPERTY", "车辆不属于用户");
-            }
-        }
         vehicle.setModel(request.model());
         vehicle.setLicensePlate(request.licensePlate());
 
@@ -112,6 +104,16 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public List<VehicleInfoResponse> getAllVehicles() {
         List<Vehicle> vehicles = vehicleRepository.findAll();
+        List<VehicleInfoResponse> responses = new ArrayList<>();
+        for (Vehicle vehicle : vehicles) {
+            responses.add(generateResponse(vehicle));
+        }
+        return responses;
+    }
+
+    @Transactional(readOnly = true)
+    public List<VehicleInfoResponse> getUserVehicles(Long userId) {
+        List<Vehicle> vehicles = vehicleRepository.findAllByUserId(userId);
         List<VehicleInfoResponse> responses = new ArrayList<>();
         for (Vehicle vehicle : vehicles) {
             responses.add(generateResponse(vehicle));

@@ -1,6 +1,7 @@
 package database.cms.controller;
 
 import database.cms.DTO.request.TechRegisterRequest;
+import database.cms.DTO.request.TechUpdateRequest;
 import database.cms.DTO.response.TechnicianInfoResponse;
 import database.cms.service.TechnicianService;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +35,16 @@ public class TechnicianController {
     public ResponseEntity<List<TechnicianInfoResponse>> getAllTechnicians() {
         List<TechnicianInfoResponse> responses = technicianService.getAllInfo();
         return ResponseEntity.ok(responses);
+    }
+
+    @PutMapping("/{technicianId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<TechnicianInfoResponse> updateTechnician(
+            @RequestBody TechUpdateRequest request,
+            @PathVariable Long technicianId
+            ){
+        TechnicianInfoResponse response = technicianService.update(technicianId, request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{technicianId}")
