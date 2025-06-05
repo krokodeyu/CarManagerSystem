@@ -4,14 +4,14 @@
 
 ## 用户管理 `/users`
 
-| 方法     | 路径                         | 描述                    | 权限         |
-| ------ | -------------------------- | --------------------- | ---------- |
-| `POST` | `/users/register`          | 用户注册                  | user       |
-| `POST` | `/users/login`             | 用户登录（返回token/session） | user       |
-| `GET`  | `/users/{id}`              | 获取用户详情                | user/admin |
-| `GET`  | `/users/{id}/vehicles`     | 查询用户名下所有车辆            | user/admin |
-| `GET`  | `/users/{id}/orders`       | 查询用户历史维修记录            | user/admin |
-| `GET`  | `/users/{id}/appointments` | 查询用户预约记录              | user/admin |
+| 方法     | 路径                         | 描述                     | 权限         |
+| ------ | -------------------------- | ---------------------- | ---------- |
+| `POST` | `/users/register`          | 用户注册√                  | user       |
+| `POST` | `/users/login`             | 用户登录（返回token/session）√ | user       |
+| `GET`  | `/users/{id}`              | 获取用户详情√                | user/admin |
+| `GET`  | `/users/{id}/vehicles`     | 查询用户名下所有车辆             | user/admin |
+| `GET`  | `/users/{id}/orders`       | 查询用户历史维修记录             | user/admin |
+| `GET`  | `/users/{id}/appointments` | 查询用户预约记录               | user/admin |
 
 ---
 
@@ -19,10 +19,10 @@
 
 | 方法       | 路径                      | 描述       | 权限         |
 | -------- | ----------------------- | -------- | ---------- |
-| `POST`   | `/vehicles`             | 添加新车辆    | user       |
-| `GET`    | `/vehicles/{id}`        | 获取车辆详情   | all        |
-| `PUT`    | `/vehicles/{id}`        | 更新车辆信息   | user       |
-| `DELETE` | `/vehicles/{id}`        | 删除车辆     | user/admin |
+| `POST`   | `/vehicles`             | 添加新车辆√   | user       |
+| `GET`    | `/vehicles/{id}`        | 获取车辆详情√  | all        |
+| `PUT`    | `/vehicles/{id}`        | 更新车辆信息√  | user       |
+| `DELETE` | `/vehicles/{id}`        | 删除车辆√    | user/admin |
 | `GET`    | `/vehicles/{id}/orders` | 查询该车维修记录 | all        |
 
 ---
@@ -31,10 +31,10 @@
 
 | 方法     | 路径                         | 描述           | 权限         |
 | ------ | -------------------------- | ------------ | ---------- |
-| `POST` | `/technicians`             | 新增维修员        | admin      |
-| `GET`  | `/technicians`             | 获取所有维修员      | admin      |
-| `PUT`  | `/technicians/{id}`        | 更新维修员信息      | admin      |
-| `GET`  | `/technicians/{id}`        | 获取维修员详情      | tech/admin |
+| `POST` | `/technicians`             | 新增维修员√       | admin      |
+| `GET`  | `/technicians`             | 获取所有维修员√     | admin      |
+| `PUT`  | `/technicians/{id}`        | 更新维修员信息√     | admin      |
+| `GET`  | `/technicians/{id}`        | 获取维修员详情√     | tech/admin |
 | `GET`  | `/technicians/{id}/orders` | 查询维修员维修记录    | tech/admin |
 | `GET`  | `/technicians/{id}/income` | 查询维修员工时与收入统计 | tech/admin |
 

@@ -16,17 +16,18 @@ public class Technician {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     private Role role = Role.TECH;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "phone", nullable = false)
+    @Column(name = "phone", nullable = false, unique = true)
     private String phone;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "specialization", nullable = false)
-    private String specialization;
+    private TechSpec specialization;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp

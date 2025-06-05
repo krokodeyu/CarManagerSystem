@@ -10,9 +10,11 @@ import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import database.cms.util.JWTUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -20,14 +22,16 @@ public class AuthService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
     private final TechnicianRepository technicianRepository;
 
-    public AuthService(UserRepository userRepository, TechnicianRepository technicianRepository) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, TechnicianRepository technicianRepository) {
         this.userRepository = userRepository;
-        passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
         this.technicianRepository = technicianRepository;
     }
 
+    @Transactional(readOnly = true)
     public JWTResponse Login(LoginRequest request){
         String name = request.username();
         User user = userRepository.findByName(name);
