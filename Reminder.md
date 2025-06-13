@@ -22,3 +22,11 @@ public List<User> getAllUsers() {
 3. 弃用adminController, 改为statController
 
 stat高级功能中期提交后再做
+
+## 6/13
+1. After user's publish, admin needs to arrange certain technicians. Relevant technicians need to confirm or reject the order.
+If rejection occurs, admin needs to rearrange until all things are done.
+2. Add notification to technicians, admin and users. 
+3. Admin login 
+4. JWT revision 
+5. Test
