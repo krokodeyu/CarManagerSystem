@@ -35,9 +35,6 @@ public class Vehicle {
     private String licensePlate;
 
     @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
-    private List<RepairOrder> repairOrders;
-
-    @OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY)
     private List<Appointment> appointments;
 
 }

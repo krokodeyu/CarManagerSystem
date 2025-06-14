@@ -34,24 +34,30 @@ public class AuthService {
     @Transactional(readOnly = true)
     public JWTResponse Login(LoginRequest request){
         String name = request.username();
-        User user = userRepository.findByName(name);
-        if(user != null && passwordEncoder
-                .matches(request.password(), user.getEncryptedPassword())) {
-            LoginInfo loginInfo = new LoginInfo(user.getId(), user.getName(), user.getRole());
-            String token = JWTUtil.generateToken(loginInfo);
-            return new JWTResponse(token);
+        User user = userRepository.findByName(name)
+                .orElseThrow(()-> new ResourceNotFoundException("USER_NOT_FOUND", "无效的用户名"));
+        if(user != null){
+            if (!passwordEncoder.matches(request.password(), user.getEncryptedPassword())) {
+                throw new AuthErrorException("INVALID_LOGIN_INFO", "用户名或密码错误");
+            }
+                LoginInfo loginInfo = new LoginInfo(user.getId(), user.getName(), user.getRole());
+                String token = JWTUtil.generateToken(loginInfo);
+                return new JWTResponse(token);
+
         }
 
         Technician tech = technicianRepository.findByName(name)
                 .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND", "无效的技工名称"));
 
-        if(tech != null && passwordEncoder
-                .matches(request.password(), tech.getEncryptedPassword())) {
+        if(tech != null){
+            if(!passwordEncoder.matches(request.password(), tech.getEncryptedPassword())){
+                throw new AuthErrorException("INVALID_LOGIN_INFO", "用户名或密码错误");
+            }
             LoginInfo loginInfo = new LoginInfo(tech.getId(), tech.getName(), tech.getRole());
             String token = JWTUtil.generateToken(loginInfo);
             return new JWTResponse(token);
         }
 
-        throw new AuthErrorException("INVALID_LOGIN_INFO", "用户名或密码错误");
+        throw new AuthErrorException("INVALID_LOGIN_INFO", "未找到账户");
     }
 }

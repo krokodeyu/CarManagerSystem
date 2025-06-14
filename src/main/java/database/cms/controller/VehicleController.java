@@ -42,7 +42,7 @@ public class VehicleController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<List<VehicleInfoResponse>> getAllVehicles() {
         List<VehicleInfoResponse> responses = vehicleService.getAllVehicles();
         return ResponseEntity.ok(responses);
@@ -66,7 +66,7 @@ public class VehicleController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(authentication, #userId)")
-    @GetMapping
+    @GetMapping("/get/{userId}")
     public ResponseEntity<List<VehicleInfoResponse>> getUserVehicles(
             @RequestParam Long userId
     ) {

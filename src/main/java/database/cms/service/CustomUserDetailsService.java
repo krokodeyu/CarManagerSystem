@@ -3,6 +3,7 @@ package database.cms.service;
 import database.cms.detail.CustomUserDetails;
 import database.cms.entity.Technician;
 import database.cms.entity.User;
+import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +28,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 先查用户表
-        User user = userRepository.findByName(username);
+        User user = userRepository.findByName(username)
+                .orElseThrow(()-> new ResourceNotFoundException("USER_NOT_FOUND", "无效的用户名"));
         if (user != null) {
             return new CustomUserDetails(
                     user.getId(),
@@ -38,7 +40,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         // 再查维修员表
-        Technician tech = technicianRepository.findByName(username);
+        Technician tech = technicianRepository.findByName(username)
+                .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND", "无效的技工名称"));
         if (tech != null) {
             return new CustomUserDetails(
                     tech.getId(),

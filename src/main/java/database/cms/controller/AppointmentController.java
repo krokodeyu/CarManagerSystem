@@ -2,10 +2,12 @@ package database.cms.controller;
 
 import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
+import database.cms.entity.Appointment;
 import database.cms.entity.User;
 import database.cms.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /*预约管理 `/appointments`
@@ -68,4 +70,19 @@ public class AppointmentController {
         AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/appointment/status")
+    public ResponseEntity<?> checkAppointmentByStatus(@RequestParam Appointment.Status status) {
+        ApppintmentByStatusResponse response = appointmentService.getApppintmentByStatus(status);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/appointment/arrange")
+    public ResponseEntity<?> arrangeAppointment(@RequestBody AppointmentArrangementRequest request){
+        appointmentService.arrangeAppointment(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

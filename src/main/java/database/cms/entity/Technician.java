@@ -39,6 +39,14 @@ public class Technician {
     @OneToMany(mappedBy = "technician")
     private List<Appointment> appointments;
 
+    @OneToOne
+    @JoinColumn(name = "salary_record")
+    private SalaryRecord salaryRecord;
+
+    @OneToMany
+    @JoinColumn(name = "notification")
+    private List<Notification> notifications;
+
 
     public Technician(Long id, String name, String encryptedPassword) {
         this.id = id;
@@ -50,4 +58,5 @@ public class Technician {
     public Technician() {
 
     }
+
 }

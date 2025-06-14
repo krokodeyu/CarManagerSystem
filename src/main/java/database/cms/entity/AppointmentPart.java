@@ -10,7 +10,7 @@ public class AppointmentPart {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "repair_appointment_id", nullable = false)
+    @JoinColumn(name = "appointment_id", nullable = false)
     private Appointment appointment;
 
     @ManyToOne

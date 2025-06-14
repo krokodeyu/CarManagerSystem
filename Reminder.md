@@ -30,3 +30,6 @@ If rejection occurs, admin needs to rearrange until all things are done.
 3. Admin login 
 4. JWT revision 
 5. Test
+
+## 6/14
+1. AppointmentService-confirmAppointment need to be completed after the implementation of ADMIN.

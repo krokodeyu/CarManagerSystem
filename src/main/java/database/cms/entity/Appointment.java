@@ -62,13 +62,13 @@ public class Appointment {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "repairOrder", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "appointment", cascade = CascadeType.REMOVE)
     private List<RepairItem> repairItems;
 
-    @OneToMany(mappedBy = "repairOrder")
+    @OneToMany(mappedBy = "appointment")
     private List<AppointmentPart> appointmentParts;
 
-    @OneToMany(mappedBy = "repairOrder")
+    @OneToMany(mappedBy = "appointment")
     private List<Feedback> feedbacks;
 
     @Column(name = "total_cost", nullable = false)

@@ -1,6 +1,7 @@
 package database.cms.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "spare_parts")
+@Data
 public class SparePart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

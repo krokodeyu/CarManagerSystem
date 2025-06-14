@@ -1,24 +1,19 @@
 package database.cms.service;
 
-import database.cms.DTO.request.AppointmentCancelRequest;
-import database.cms.DTO.request.AppointmentConfirmationRequest;
-import database.cms.DTO.request.AppointmentRequest;
-import database.cms.DTO.request.AppointmentRevisionRequest;
+import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
-import database.cms.entity.Appointment;
-import database.cms.entity.User;
-import database.cms.entity.Vehicle;
+import database.cms.entity.*;
 import database.cms.event.AppointmentCreateEvent;
 import database.cms.exception.BusinessErrorException;
 import database.cms.exception.ResourceNotFoundException;
-import database.cms.repository.AppointmentRepository;
-import database.cms.repository.UserRepository;
-import database.cms.repository.VehicleRepository;
+import database.cms.repository.*;
+import org.hibernate.validator.internal.constraintvalidators.bv.notempty.NotEmptyValidatorForArraysOfBoolean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,6 +26,10 @@ public class AppointmentService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private TechnicianRepository technicianRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, ApplicationEventPublisher applicationEventPublisher){
 
@@ -90,11 +89,7 @@ public class AppointmentService {
     // Authorization?
     public AllAppointmentResponse getAllAppointment(){
 
-        List<Appointment> appointmentList = appointmentRepository.findAll();
-
-        List<String> appointmentIds = appointmentList.stream().map(Appointment::getAppointmentId).collect(Collectors.toList());
-
-        return new AllAppointmentResponse(appointmentIds);
+        return new AllAppointmentResponse(appointmentRepository.findAll());
     }
 
     public AppointmentDetailResponse getAppointmentDetail(Long appointmentId){
@@ -139,18 +134,63 @@ public class AppointmentService {
 
     public AppointmentConfirmationResponse confirmAppointment(AppointmentConfirmationRequest request){
 
-        Appointment existingAppointment = appointmentRepository.findById(request.id())
+        User admin = userRepository.findAdmin();
+
+        Appointment existingAppointment = appointmentRepository.findById(request.appointmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "无效订单号"));
 
         if (existingAppointment.getStatus() != Appointment.Status.UNACCEPTED) {
             throw new BusinessErrorException("INVALID_STATUS", "当前状态无法确认预约");
         }
 
-        existingAppointment.setStatus(Appointment.Status.ONGOING);
+        Notification notification = new Notification();
+        notification.setAppointmentId(existingAppointment.getId());
 
-        appointmentRepository.save(existingAppointment);
+        if (request.confirm()) {
+            existingAppointment.setStatus(Appointment.Status.ONGOING);
+            appointmentRepository.save(existingAppointment);
 
-        return new AppointmentConfirmationResponse(true, request.id()); // 模拟订单号
+            notification.setContent("The technician has confirmed the appointment!");
+            notificationRepository.save(notification);
+            admin.getNotification().add(notification);
+
+            return new AppointmentConfirmationResponse(true, request.appointmentId());
+        }
+
+        else {
+            notification.setContent("The technician rejected the appointment!");
+            notificationRepository.save(notification);
+            admin.getNotification().add(notification);
+
+            return new AppointmentConfirmationResponse(false, request.appointmentId());
+        }
     }
 
+
+    public ApppintmentByStatusResponse getApppintmentByStatus(Appointment.Status status){
+
+        List<Object[]> results = appointmentRepository.findAppointmentsByStatus(status);
+
+        List<Long> appointmentIds = new ArrayList<>();
+
+        for (Object[] result : results) {
+            appointmentIds.add((Long) result[0]);
+        }
+
+        return new ApppintmentByStatusResponse(appointmentIds);
+    }
+
+    public void arrangeAppointment(AppointmentArrangementRequest request){
+
+        Technician technician = technicianRepository.findById(request.technicianId())
+                .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND","无效技工名称"));
+
+        Notification notification = new Notification();
+        notification.setAppointmentId(request.appointmentId());
+        notification.setTechnician(technician);
+        notification.setContent("You have new appointments!");
+        notificationRepository.save(notification);
+
+        technician.getNotifications().add(notification);
+    }
 }
