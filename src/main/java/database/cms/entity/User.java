@@ -24,6 +24,12 @@ public class User {
 
     }
 
+    /*public enum Role {
+        USER,
+        TECH,
+        ADMIN
+    }*/
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -58,6 +64,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Feedback> feedbacks;
 
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notification;
 
 
 }

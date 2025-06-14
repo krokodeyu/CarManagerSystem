@@ -66,7 +66,7 @@ public class VehicleController {
     }
 
     @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(authentication, #userId)")
-    @GetMapping
+    @GetMapping("/get/{userId}")
     public ResponseEntity<List<VehicleInfoResponse>> getUserVehicles(
             @RequestParam Long userId
     ) {

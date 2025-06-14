@@ -1,15 +1,18 @@
 package database.cms.service;
 
+import database.cms.DTO.request.NotificationReturnRequest;
 import database.cms.DTO.request.TechRegisterRequest;
 import database.cms.DTO.request.TechUpdateRequest;
 import database.cms.DTO.response.ReminderResponse;
 import database.cms.DTO.response.TechnicianInfoResponse;
 import database.cms.detail.CustomUserDetails;
 import database.cms.entity.Reminder;
+import database.cms.entity.Notification;
 import database.cms.entity.TechSpec;
 import database.cms.entity.Technician;
 import database.cms.exception.AuthErrorException;
 import database.cms.exception.ResourceNotFoundException;
+import database.cms.repository.NotificationRepository;
 import database.cms.repository.TechnicianRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,11 +27,12 @@ import java.util.List;
 public class TechnicianService {
 
     private final TechnicianRepository technicianRepository;
-
+    private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public TechnicianService(TechnicianRepository technicianRepository) {
+    public TechnicianService(TechnicianRepository technicianRepository, NotificationRepository notificationRepository) {
         this.technicianRepository = technicianRepository;
+        this.notificationRepository = notificationRepository;
         passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -123,4 +127,8 @@ public class TechnicianService {
         }
         return reminders;
     }
+
+
+
+
 }

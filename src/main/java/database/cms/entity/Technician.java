@@ -41,6 +41,19 @@ public class Technician {
 
     @OneToMany(mappedBy = "technician")
     private List<Reminder> reminders;
+    @OneToOne
+    @JoinColumn(name = "salary_record")
+    private SalaryRecord salaryRecord;
+
+    @OneToMany
+    @JoinColumn(name = "notification")
+    private List<Notification> notifications;
+
+
+    public Technician(Long id, String name, String encryptedPassword) {
+        this.id = id;
+        this.name = name;
+        this.encryptedPassword = encryptedPassword;
 
     public void addReminder(Appointment appointment){
         Reminder reminder = new Reminder();
@@ -48,4 +61,5 @@ public class Technician {
         reminder.setAppointment(appointment);
         reminders.add(reminder);
     }
+
 }

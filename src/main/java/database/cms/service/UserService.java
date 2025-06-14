@@ -2,6 +2,7 @@ package database.cms.service;
 
 import database.cms.DTO.request.UserRegisterRequest;
 import database.cms.DTO.request.UserUpdateRequest;
+import database.cms.DTO.response.NotificationResponse;
 import database.cms.DTO.response.RegisterResponse;
 import database.cms.DTO.response.UserInfoResponse;
 import database.cms.entity.Role;
@@ -92,5 +93,12 @@ public class UserService {
         }
 
         return generateResponse(user);
+    }
+
+    public NotificationResponse checkNotification(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "用户不存在"));
+
+        return new NotificationResponse(user.getNotification());
     }
 }

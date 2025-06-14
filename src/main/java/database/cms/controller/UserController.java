@@ -2,9 +2,12 @@ package database.cms.controller;
 
 import database.cms.DTO.request.UserRegisterRequest;
 import database.cms.DTO.request.UserUpdateRequest;
+import database.cms.DTO.response.NotificationResponse;
 import database.cms.DTO.response.RegisterResponse;
 import database.cms.DTO.response.UserInfoResponse;
+import database.cms.service.SecurityService;
 import database.cms.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +20,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final SecurityService securityService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, SecurityService securityService) {
         this.userService = userService;
+        this.securityService = securityService;
     }
 
     @GetMapping("/{userId}")
@@ -52,5 +57,12 @@ public class UserController {
     ) {
         UserInfoResponse response = userService.update(request, userId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check-notification/{userId}")
+    @PreAuthorize("@securityService.isOwner(authentication, #userId)")
+    public ResponseEntity<?> checkNotification(@PathVariable Long userId) {
+        NotificationResponse response = userService.checkNotification(userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

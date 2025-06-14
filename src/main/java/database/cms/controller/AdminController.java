@@ -3,6 +3,7 @@ package database.cms.controller;
 import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
 import database.cms.service.AdminService;
+import database.cms.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,10 +29,12 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private final AppointmentService appointmentService;
 
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, AppointmentService appointmentService) {
         this.adminService = adminService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping("/users/{userId}")
@@ -80,3 +83,50 @@ public class AdminController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
+
+    @PostMapping("/pay-technician")
+    public ResponseEntity<?> payTechnician(@RequestBody PaymentRequest request){
+        adminService.payTechnician(request.technicianId(), request.amount());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/stats/average-repair-fees")
+    public ResponseEntity<?> statsAverageRepairFees(String model) {
+        AverageRepairFeeResponse response = adminService.statsAverageRepairFees(model);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/stats/repair-frequencies")
+    public ResponseEntity<?> statsRepairFrequencies() {
+        RepairFrequenciesResponse response = adminService.statsFrequencies();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/stats/most-frequent-failures")
+    public ResponseEntity<?> statsMostFrequentFailures(@RequestParam String model) {
+        MostFrequentFailuresResponse response = adminService.statsMostFrequentFailures(model);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/stats/fee-proportions")
+    public ResponseEntity<?> statsFeeProportions(@RequestParam Integer year, Integer month) {
+        FeeProportionResponse response = adminService.statsFeeProportions(year, month);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/stats/negative-comment-orders")
+    public ResponseEntity<?> statsNegativeCommentOrders() {
+        NegativeCommentOrdersResponse response = adminService.statsNegativeCommentOrders();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @GetMapping("/stats/technician-performance")
+    public ResponseEntity<?> statsTechnicianPerformance() {
+        TechnicianPerformanceResponse response = adminService.statsTechnicianPerformance();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/stats/unresolved-orders")
+    public ResponseEntity<?> statsUnresolvedOrders() {
+        UnresolvedOrdersResponse response = adminService.statsUnresolvedOrders();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }

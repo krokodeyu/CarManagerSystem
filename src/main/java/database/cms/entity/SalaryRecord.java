@@ -1,5 +1,6 @@
 package database.cms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,7 +13,12 @@ public class SalaryRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /*@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "technician_id", nullable = false)
-    private Technician technician;*/
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "technician_id")
+    private Technician technician;
+
+    @Column(name = "amount")
+    private double amount;
+
 }

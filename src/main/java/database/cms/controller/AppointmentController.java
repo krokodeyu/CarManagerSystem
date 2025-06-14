@@ -2,6 +2,7 @@ package database.cms.controller;
 
 import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
+import database.cms.entity.Appointment;
 import database.cms.entity.User;
 import database.cms.service.AppointmentService;
 import org.springframework.http.HttpStatus;
@@ -78,5 +79,19 @@ public class AppointmentController {
         MessageResponse response = appointmentService.remind(orderId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-}
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/appointment/status")
+    public ResponseEntity<?> checkAppointmentByStatus(@RequestParam Appointment.Status status) {
+        ApppintmentByStatusResponse response = appointmentService.getApppintmentByStatus(status);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/appointment/arrange")
+    public ResponseEntity<?> arrangeAppointment(@RequestBody AppointmentArrangementRequest request){
+        appointmentService.arrangeAppointment(request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+}
