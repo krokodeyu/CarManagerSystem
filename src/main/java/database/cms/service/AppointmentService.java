@@ -7,7 +7,6 @@ import database.cms.entity.Appointment;
 import database.cms.entity.Technician;
 import database.cms.entity.User;
 import database.cms.entity.Vehicle;
-import database.cms.event.AppointmentCreateEvent;
 import database.cms.exception.BusinessErrorException;
 import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.*;
@@ -15,7 +14,11 @@ import database.cms.repository.AppointmentRepository;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import database.cms.repository.VehicleRepository;
+
 import org.springframework.context.ApplicationEventPublisher;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -72,7 +75,8 @@ public class AppointmentService {
                  Appointment.Status.UNACCEPTED
         );
 
-        appointment.setAppointmentTime(LocalDateTime.now());
+
+
         appointment.setCreatedAt(LocalDateTime.now());
         appointment.setAppointmentId(generateAppointmentId());
         appointmentRepository.save(appointment);
@@ -84,7 +88,6 @@ public class AppointmentService {
                 null,
                 appointment.getAppointmentId(),
                 Appointment.Status.UNACCEPTED,
-                appointment.getAppointmentTime(),
                 appointment.getCreatedAt(),
                 LocalDateTime.now()
         );
@@ -103,22 +106,6 @@ public class AppointmentService {
         return new AppointmentDetailResponse(appointment);
     }
 
-
-    public AppointmentRevisionResponse reviseAppointment(AppointmentRevisionRequest request){
-
-        Appointment appointment = appointmentRepository.findById(request.targetId())
-                .orElseThrow(()-> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "无效订单号"));
-
-        request.revisedAppointment().setId(appointment.getId());
-        request.revisedAppointment().setUser(appointment.getUser());
-        request.revisedAppointment().setCreatedAt(appointment.getCreatedAt());
-
-        AppointmentCreateEvent event = AppointmentCreateEvent.event(this, appointment);
-        applicationEventPublisher.publishEvent(event);
-        //appointmentRepository.save(request.revisedAppointment());
-
-        return new AppointmentRevisionResponse(true);
-    }
 
     public AppointmentCancelResponse cancelAppointment(AppointmentCancelRequest request){
 
@@ -175,7 +162,7 @@ public class AppointmentService {
         return new MessageResponse("success");
     }
 
-    public ApppintmentByStatusResponse getApppintmentByStatus(Appointment.Status status){
+    public AppointmentByStatusResponse getApppintmentByStatus(Appointment.Status status){
 
         List<Object[]> results = appointmentRepository.findAppointmentsByStatus(status);
 
@@ -185,7 +172,7 @@ public class AppointmentService {
             appointmentIds.add((Long) result[0]);
         }
 
-        return new ApppintmentByStatusResponse(appointmentIds);
+        return new AppointmentByStatusResponse(appointmentIds);
     }
 
     public void arrangeAppointment(AppointmentArrangementRequest request){
@@ -200,5 +187,35 @@ public class AppointmentService {
         notificationRepository.save(notification);
 
         technician.getNotifications().add(notification);
+    }
+
+    public AppointmentFinishResponse finishAppointment(AppointmentFinishRequest request){
+        Appointment appointment = appointmentRepository.findById(request.appointmentId())
+                .orElseThrow(()-> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND","无效的订单号"));
+
+        User user = appointment.getUser();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        Technician technician = technicianRepository.findByName(currentUsername);
+
+        double hourlyWage = TechSpec.HOURLY_WAGE_MAP(technician.getSpecialization());
+        double totalCost = hourlyWage * request.totalHours();
+
+        appointment.setStatus(Appointment.Status.FINISHED);
+        appointment.setTotalHours(request.totalHours());
+        appointment.setTotalCost(totalCost);
+        appointmentRepository.save(appointment);
+
+        Notification notification = new Notification();
+        notification.setAppointmentId(request.appointmentId());
+        notification.setUser(user);
+        notification.setContent("Your appointment has been finished!");
+        notificationRepository.save(notification);
+
+        user.getNotification().add(notification);
+
+        return new AppointmentFinishResponse(request.appointmentId(), request.totalHours());
+
     }
 }

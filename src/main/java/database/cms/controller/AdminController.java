@@ -37,41 +37,48 @@ public class AdminController {
         this.appointmentService = appointmentService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{userId}")
     public ResponseEntity<UserCheckResponse> checkUser(@PathVariable Long userId) {
         UserCheckResponse response = adminService.checkUser(userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/technicians/{technicianId}")
     public ResponseEntity<TechnicianCheckResponse> checkTechnician(@PathVariable Long technicianId) {
         TechnicianCheckResponse response = adminService.checkTechnician(technicianId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/salaries")
     public ResponseEntity<SalaryRecordResponse> checkAllSalaries() {
         SalaryRecordResponse response = adminService.checkAllSalaryRecord();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/vehicles/{vehicleId}")
     public ResponseEntity<VehicleCheckResponse> checkVehicle(@PathVariable Long vehicleId) {
         VehicleCheckResponse response = adminService.checkVehicle(vehicleId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/orders/{orderId}")
     public ResponseEntity<OrderCheckResponse> checkOrder(@PathVariable Long orderId) {
         OrderCheckResponse response = adminService.checkOrder(orderId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/records")
     public ResponseEntity<MaintenanceRecordResponse> checkAllRecords() {
         MaintenanceRecordResponse response = adminService.checkAllMaintenanceRecord();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     @PutMapping("/password")
     @PreAuthorize("hasRole('ADMIN')")
@@ -83,48 +90,56 @@ public class AdminController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/pay-technician")
     public ResponseEntity<?> payTechnician(@RequestBody PaymentRequest request) {
         adminService.payTechnician(request.technicianId(), request.amount());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/average-repair-fees")
     public ResponseEntity<?> statsAverageRepairFees(String model) {
         AverageRepairFeeResponse response = adminService.statsAverageRepairFees(model);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/repair-frequencies")
     public ResponseEntity<?> statsRepairFrequencies() {
         RepairFrequenciesResponse response = adminService.statsFrequencies();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/most-frequent-failures")
     public ResponseEntity<?> statsMostFrequentFailures(@RequestParam String model) {
         MostFrequentFailuresResponse response = adminService.statsMostFrequentFailures(model);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/fee-proportions")
     public ResponseEntity<?> statsFeeProportions(@RequestParam Integer year, Integer month) {
         FeeProportionResponse response = adminService.statsFeeProportions(year, month);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/negative-comment-orders")
     public ResponseEntity<?> statsNegativeCommentOrders() {
         NegativeCommentOrdersResponse response = adminService.statsNegativeCommentOrders();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/technician-performance")
     public ResponseEntity<?> statsTechnicianPerformance() {
         TechnicianPerformanceResponse response = adminService.statsTechnicianPerformance();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/unresolved-orders")
     public ResponseEntity<?> statsUnresolvedOrders() {
         UnresolvedOrdersResponse response = adminService.statsUnresolvedOrders();

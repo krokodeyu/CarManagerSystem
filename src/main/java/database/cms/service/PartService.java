@@ -4,6 +4,7 @@ import database.cms.DTO.request.PartStoreRequest;
 import database.cms.DTO.request.PartUpdateRequest;
 import database.cms.DTO.response.AllPartsResponse;
 import database.cms.DTO.response.LowStockResponse;
+import database.cms.DTO.response.MessageResponse;
 import database.cms.DTO.response.PartDetailResponse;
 import database.cms.entity.SparePart;
 import database.cms.exception.ResourceNotFoundException;
@@ -30,8 +31,16 @@ public class PartService {
         this.sparePartRepository = sparePartRepository;
     }
 
-    public void storePart(PartStoreRequest request) {
-        sparePartRepository.save(request.part());
+    public MessageResponse storePart(PartStoreRequest request) {
+
+        SparePart part = new SparePart();
+        part.setName(request.name());
+        part.setPrice(request.price());
+        part.setQuantity(request.quantity());
+        sparePartRepository.save(part);
+
+        return new MessageResponse("Successfully added part");
+
     }
 
     public AllPartsResponse getAllParts() {

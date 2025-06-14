@@ -1,9 +1,11 @@
 package database.cms.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "order_parts")
+@Data
 public class AppointmentPart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,8 +14,8 @@ public class SalaryRecord {
     private Long id;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "technician_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "technician_id", unique = false)
     private Technician technician;
 
     @Column(name = "amount")

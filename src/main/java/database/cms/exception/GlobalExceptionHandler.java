@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         return switch (errorCode) {
             case "INVALID_LOGIN_INFO" -> HttpStatus.UNAUTHORIZED; // 401
             case "NOT_USER_PROPERTY" -> HttpStatus.FORBIDDEN;      // 403
-            case "USER_NOT_FOUND", "PART_NOT_FOUND", "APPOINTMENT_NOT_FOUND", "TECH_NOT_FOUND", "VEHICLE_NOT_FOUND" -> HttpStatus.NOT_FOUND;
+            case "USER_NOT_FOUND", "ITEM_NOT_FOUND", "PART_NOT_FOUND", "APPOINTMENT_NOT_FOUND", "TECH_NOT_FOUND", "VEHICLE_NOT_FOUND" -> HttpStatus.NOT_FOUND;
             default -> HttpStatus.BAD_REQUEST;                    // 400
         };
     }

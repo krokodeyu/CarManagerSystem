@@ -73,19 +73,6 @@
 
 ---
 
-## 预约管理 `/appointments`
-
-| 方法       | 路径                           | 描述        | 权限    |
-| -------- | ---------------------------- | --------- | ----- |
-| `POST`   | `/appointments`              | 创建预约      | user  |
-| `GET`    | `/appointments`              | 查询全部预约    | admin |
-| `GET`    | `/appointments/{id}`         | 查看预约详情    | all   |
-| `PUT`    | `/appointments/{id}`         | 修改预约信息    | user  |
-| `DELETE` | `/appointments/{id}`         | 取消预约      | user  |
-| `POST`   | `/appointments/{id}/confirm` | 确认预约并生成订单 | tech  |
-
----
-
 ## 评价反馈 `/feedbacks`
 
 | 方法     | 路径                           | 描述        | 权限    |

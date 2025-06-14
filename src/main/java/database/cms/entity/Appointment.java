@@ -1,10 +1,12 @@
 package database.cms.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.lettuce.core.dynamic.annotation.CommandNaming;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.boot.autoconfigure.hazelcast.HazelcastJpaDependencyAutoConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,9 +49,6 @@ public class Appointment {
     @JoinColumn(name = "technician_id")
     private Technician technician;
 
-    @Column(name = "appointment_time", nullable = false)
-    private LocalDateTime appointmentTime;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.UNACCEPTED;
@@ -71,7 +70,10 @@ public class Appointment {
     @OneToMany(mappedBy = "appointment")
     private List<Feedback> feedbacks;
 
-    @Column(name = "total_cost", nullable = false)
+    @Column(name = "total_hours")
+    private Integer totalHours;
+
+    @Column(name = "total_cost")
     private Double totalCost;
 
 

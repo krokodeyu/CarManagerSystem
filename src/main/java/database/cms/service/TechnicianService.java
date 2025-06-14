@@ -1,19 +1,13 @@
 package database.cms.service;
 
-import database.cms.DTO.request.NotificationReturnRequest;
-import database.cms.DTO.request.TechRegisterRequest;
-import database.cms.DTO.request.TechUpdateRequest;
-import database.cms.DTO.response.ReminderResponse;
-import database.cms.DTO.response.TechnicianInfoResponse;
+import database.cms.DTO.request.*;
+import database.cms.DTO.response.*;
 import database.cms.detail.CustomUserDetails;
-import database.cms.entity.Reminder;
-import database.cms.entity.Notification;
-import database.cms.entity.TechSpec;
-import database.cms.entity.Technician;
+import database.cms.entity.*;
 import database.cms.exception.AuthErrorException;
+import database.cms.exception.BusinessErrorException;
 import database.cms.exception.ResourceNotFoundException;
-import database.cms.repository.NotificationRepository;
-import database.cms.repository.TechnicianRepository;
+import database.cms.repository.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TechnicianService {
@@ -29,11 +24,17 @@ public class TechnicianService {
     private final TechnicianRepository technicianRepository;
     private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RepairItemRepository repairItemRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final SparePartRepository sparePartRepository;
 
-    public TechnicianService(TechnicianRepository technicianRepository, NotificationRepository notificationRepository) {
+    public TechnicianService(TechnicianRepository technicianRepository, NotificationRepository notificationRepository, RepairItemRepository repairItemRepository, AppointmentRepository appointmentRepository, SparePartRepository sparePartRepository) {
         this.technicianRepository = technicianRepository;
         this.notificationRepository = notificationRepository;
+        this.repairItemRepository = repairItemRepository;
+        this.sparePartRepository = sparePartRepository;
         passwordEncoder = new BCryptPasswordEncoder();
+        this.appointmentRepository = appointmentRepository;
     }
 
     @Transactional(readOnly = true)
@@ -81,6 +82,7 @@ public class TechnicianService {
         tech.setPhone(phone);
         tech.setSpecialization(spec);
         tech.setEncryptedPassword(encryptedPassword);
+        technicianRepository.save(tech);
 
         return new TechnicianInfoResponse(
                 tech.getId(),
@@ -128,7 +130,106 @@ public class TechnicianService {
         return reminders;
     }
 
+    public List<RepairItemCheckResponse> checkRepairItem(Long appointmentId) {
 
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "未找到订单"));
 
+        List<RepairItemCheckResponse> responses = new ArrayList<>();
 
+        for(RepairItem repairItem : appointment.getRepairItems()) {
+            RepairItemCheckResponse response = new RepairItemCheckResponse(repairItem.getDescription());
+            responses.add(response);
+        }
+
+        return responses;
+
+    }
+
+    @Transactional
+    public MessageResponse addRepairItems(RepairItemsAddRequest request) {
+        Appointment appointment = appointmentRepository.findById(request.appointmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "未找到订单"));
+
+        RepairItem repairItem = new RepairItem();
+        repairItem.setAppointment(appointment);
+        repairItem.setDescription(request.Description());
+        repairItem.setCost(request.cost());
+
+        appointment.getRepairItems().add(repairItem);
+
+        return new MessageResponse("新的维修项目已添加!");
+    }
+
+    public MessageResponse deleteRepairItems(RepairItemsDeleteRequest request) {
+        Appointment appointment = appointmentRepository.findById(request.appointmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "未找到订单"));
+
+        RepairItem repairItem = repairItemRepository.findById(request.repairItemId())
+                .orElseThrow(()-> new ResourceNotFoundException("ITEM_NOT_FOUND","未找到订单配件"));
+
+        appointment.getRepairItems().remove(repairItem);
+
+        return new MessageResponse("该维修项目已删除！");
+    }
+
+    public List<AppointmentPartsCheckResponse> checkAppointmentParts(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "未找到订单"));
+
+        List<AppointmentPartsCheckResponse> responses = new ArrayList<>();
+
+        for (AppointmentPart appointmentPart : appointment.getAppointmentParts()) {
+            AppointmentPartsCheckResponse response = new AppointmentPartsCheckResponse(
+                    appointmentPart.getId(), appointmentPart.getSparePart().getName());
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
+    public MessageResponse addAppointmentPart(AppointmentPartAddRequest request) {
+
+        System.out.println("尻》？" + request.appointmentId());
+        Appointment appointment = appointmentRepository.findById(request.appointmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "未找到订单"));
+
+        System.out.println("尻》？" + request.partId());
+        SparePart sparePart = sparePartRepository.findById(request.partId())
+                .orElseThrow(()-> new ResourceNotFoundException("PART_NOT_FOUND","配件未找到"));
+
+        if(request.quantity() > sparePart.getQuantity()) {
+            throw new BusinessErrorException("LOW_STOCK", "配件数量不足");
+        }
+
+        AppointmentPart appointmentPart = new AppointmentPart();
+        appointmentPart.setSparePart(sparePart);
+        appointmentPart.setQuantity(request.quantity());
+        appointmentPart.setAppointment(appointment);
+        appointmentPart.setUnitPrice(sparePart.getPrice());
+
+        appointment.getAppointmentParts().add(appointmentPart);
+
+        return new MessageResponse("订单配件添加成功！");
+    }
+
+    public MessageResponse deleteAppointmentPart(AppointmentPartDeleteRequest request) {
+        Appointment appointment = appointmentRepository.findById(request.appointmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "未找到订单"));
+
+        AppointmentPart appointmentPart = appointment.getAppointmentParts().stream()
+                .filter(part -> part.getId().equals(request.PartId()))
+                .findFirst().orElse(null);
+
+        appointment.getAppointmentParts().remove(appointmentPart);
+
+        return new MessageResponse("已删除订单配件！");
+    }
 }
+/*
+* GET	/orders/{id}/items	查询订单维修项目	all
+POST	/orders/{id}/items	添加维修项目	tech
+DELETE	/orders/{id}/items/{itemId}	删去维修项目	tech
+GET	/orders/{id}/parts	查询订单所用配件	all
+POST	/orders/{id}/parts	添加订单配件	tech
+DELETE	orders/{id}/parts/{partId}	删去订单配件	tech*/

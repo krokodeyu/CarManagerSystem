@@ -108,7 +108,7 @@ public class AdminService {
         record.setAmount(amount);
         record.setTechnician(technician);
 
-        technician.setSalaryRecord(record);
+        technician.getSalaryRecords().add(record);
         salaryRecordRepository.save(record);
     }
 

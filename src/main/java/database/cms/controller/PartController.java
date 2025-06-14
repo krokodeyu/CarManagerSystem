@@ -4,6 +4,7 @@ import database.cms.DTO.request.PartStoreRequest;
 import database.cms.DTO.request.PartUpdateRequest;
 import database.cms.DTO.response.AllPartsResponse;
 import database.cms.DTO.response.LowStockResponse;
+import database.cms.DTO.response.MessageResponse;
 import database.cms.DTO.response.PartDetailResponse;
 import database.cms.service.PartService;
 import lombok.Data;
@@ -36,9 +37,9 @@ public class PartController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<?> storePart(@RequestBody PartStoreRequest request) {
-        partService.storePart(request);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<MessageResponse> storePart(@RequestBody PartStoreRequest request) {
+        MessageResponse response =partService.storePart(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

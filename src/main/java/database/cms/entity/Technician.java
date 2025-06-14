@@ -41,9 +41,9 @@ public class Technician {
 
     @OneToMany(mappedBy = "technician")
     private List<Reminder> reminders;
-    @OneToOne
-    @JoinColumn(name = "salary_record")
-    private SalaryRecord salaryRecord;
+
+    @OneToMany(mappedBy = "technician")
+    private List<SalaryRecord> salaryRecords;
 
     @OneToMany
     @JoinColumn(name = "notification")

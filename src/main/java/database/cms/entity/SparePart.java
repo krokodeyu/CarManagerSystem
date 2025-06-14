@@ -18,9 +18,6 @@ public class SparePart {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "description")
-    private String description;
-
     @Column(name = "price", nullable = false)
     private Double price;
 

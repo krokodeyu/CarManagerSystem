@@ -1,12 +1,14 @@
 package database.cms.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "repair_items")
+@Data
 public class RepairItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

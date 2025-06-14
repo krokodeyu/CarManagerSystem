@@ -11,7 +11,6 @@ public record AppointmentResponse (
         Long technicianId,
         String appointmentId,
         Appointment.Status status,
-        LocalDateTime appointmentTime,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 

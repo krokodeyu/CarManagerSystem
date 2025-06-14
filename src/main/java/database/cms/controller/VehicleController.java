@@ -32,7 +32,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECH') or @securityService.isVehicleOwner(authentication, vehicleId)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECH') or @securityService.isVehicleOwner(authentication, #vehicleId)")
     @GetMapping("/{vehicleId}")
     public ResponseEntity<VehicleInfoResponse> getVehicle(
             @PathVariable Long vehicleId

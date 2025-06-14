@@ -52,18 +52,14 @@ public class AppointmentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/revise")
-    public ResponseEntity<AppointmentRevisionResponse> reviseAppointment (@RequestBody AppointmentRevisionRequest request){
-        AppointmentRevisionResponse response = appointmentService.reviseAppointment(request);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/cancel")
     public ResponseEntity<AppointmentCancelResponse> cancelAppointment (@RequestBody AppointmentCancelRequest request){
         AppointmentCancelResponse response = appointmentService.cancelAppointment(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('TECH')")
     @PostMapping("/confirm")
     public ResponseEntity<AppointmentConfirmationResponse> confirmAppointment (@RequestBody AppointmentConfirmationRequest request){
         AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request);
@@ -80,17 +76,24 @@ public class AppointmentController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/appointment/status")
+    @GetMapping("/check-by-status")
     public ResponseEntity<?> checkAppointmentByStatus(@RequestParam Appointment.Status status) {
-        ApppintmentByStatusResponse response = appointmentService.getApppintmentByStatus(status);
+        AppointmentByStatusResponse response = appointmentService.getApppintmentByStatus(status);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/appointment/arrange")
+    @PostMapping("/arrange")
     public ResponseEntity<?> arrangeAppointment(@RequestBody AppointmentArrangementRequest request){
         appointmentService.arrangeAppointment(request);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('TECH')")
+    @PostMapping("/finish")
+    public ResponseEntity<AppointmentFinishResponse> finishAppointment(@RequestBody AppointmentFinishRequest request){
+        AppointmentFinishResponse response = appointmentService.finishAppointment(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }
