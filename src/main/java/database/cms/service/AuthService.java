@@ -34,8 +34,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public JWTResponse Login(LoginRequest request){
         String name = request.username();
-        User user = userRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "未找到用户"));
+        User user = userRepository.findByName(name);
         if(user != null && passwordEncoder
                 .matches(request.password(), user.getEncryptedPassword())) {
             LoginInfo loginInfo = new LoginInfo(user.getId(), user.getName(), user.getRole());
@@ -43,9 +42,7 @@ public class AuthService {
             return new JWTResponse(token);
         }
 
-        Technician tech = technicianRepository.findByName(name)
-                .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND", "无效的技工名称"));
-
+        Technician tech = technicianRepository.findByName(name);
         if(tech != null && passwordEncoder
                 .matches(request.password(), tech.getEncryptedPassword())) {
             LoginInfo loginInfo = new LoginInfo(tech.getId(), tech.getName(), tech.getRole());

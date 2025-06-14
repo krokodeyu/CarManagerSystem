@@ -4,6 +4,7 @@ import database.cms.DTO.request.TechRegisterRequest;
 import database.cms.DTO.request.TechUpdateRequest;
 import database.cms.DTO.response.ReminderResponse;
 import database.cms.DTO.response.TechnicianInfoResponse;
+import database.cms.detail.CustomUserDetails;
 import database.cms.entity.Reminder;
 import database.cms.entity.TechSpec;
 import database.cms.entity.Technician;
@@ -113,7 +114,9 @@ public class TechnicianService {
 
     @Transactional(readOnly = true)
     public List<ReminderResponse> checkReminders(Authentication authentication) {
-        Technician tech = (Technician) authentication.getPrincipal();
+        CustomUserDetails details = (CustomUserDetails) authentication.getPrincipal();
+        Technician tech = technicianRepository.findById(details.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("TECH_NOT_FOUND", "未找到修理人员"));
         List<ReminderResponse> reminders = new ArrayList<>();
         for(Reminder reminder : tech.getReminders()) {
             reminders.add(generateReminderResponse(reminder));

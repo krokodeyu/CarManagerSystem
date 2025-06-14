@@ -33,9 +33,7 @@ public class VehicleService {
     public VehicleChangeResponse addVehicle(AddVehicleRequest request, Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByName(username);
-        if (user == null) {
-            throw new ResourceNotFoundException("USER_NOT_FOUND", "未找到用户");
-        }
+        if(user == null)throw new ResourceNotFoundException("USER_NOT_FOUND", "未找到用户");
         Vehicle vehicle = new Vehicle();
         vehicle.setUser(user);
         vehicle.setModel(request.model());
@@ -53,10 +51,6 @@ public class VehicleService {
 
     @Transactional(readOnly = true)
     public VehicleInfoResponse generateResponse(Vehicle vehicle){
-        List<Long> orderIds = new ArrayList<>();
-        for (RepairOrder order : vehicle.getRepairOrders()) {
-            orderIds.add(order.getId());
-        }
         List<Long> appointmentIds = new ArrayList<>();
         for (Appointment appointment : vehicle.getAppointments()) {
             appointmentIds.add(appointment.getId());
@@ -66,7 +60,6 @@ public class VehicleService {
                 vehicle.getUser().getId(),
                 vehicle.getModel(),
                 vehicle.getLicensePlate(),
-                orderIds,
                 appointmentIds
         );
     }

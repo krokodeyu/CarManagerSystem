@@ -5,6 +5,8 @@ import database.cms.DTO.response.*;
 import database.cms.service.AdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /*管理员控制`/admin`
@@ -65,6 +67,16 @@ public class AdminController {
     @GetMapping("/records")
     public ResponseEntity<MaintenanceRecordResponse> checkAllRecords() {
         MaintenanceRecordResponse response = adminService.checkAllMaintenanceRecord();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MessageResponse> changePassword(
+            Authentication auth,
+            @RequestBody ChangePasswordRequest request
+    ){
+        MessageResponse response = adminService.changePassword(auth, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

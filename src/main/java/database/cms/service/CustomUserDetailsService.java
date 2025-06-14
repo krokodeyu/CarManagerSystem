@@ -3,6 +3,7 @@ package database.cms.service;
 import database.cms.detail.CustomUserDetails;
 import database.cms.entity.Technician;
 import database.cms.entity.User;
+import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;

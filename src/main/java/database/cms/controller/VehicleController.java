@@ -42,7 +42,7 @@ public class VehicleController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<VehicleInfoResponse>> getAllVehicles() {
         List<VehicleInfoResponse> responses = vehicleService.getAllVehicles();
         return ResponseEntity.ok(responses);

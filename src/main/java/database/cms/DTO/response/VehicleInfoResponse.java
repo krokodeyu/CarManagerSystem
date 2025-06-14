@@ -9,7 +9,6 @@ public record VehicleInfoResponse(
         Long userId,
         String model,
         String licensePlate,
-        List<Long> orderIds,
         List<Long> appointmentIds
 ) {
 }
