@@ -3,6 +3,7 @@ package database.cms.controller;
 import database.cms.DTO.request.FeedbackSubmitRequest;
 import database.cms.DTO.response.AllFeedbackResponse;
 import database.cms.DTO.response.FeedbackCheckResponse;
+import database.cms.DTO.response.MessageResponse;
 import database.cms.DTO.response.NegativeFeedbackResponse;
 import database.cms.service.FeedbackService;
 import org.springframework.http.HttpStatus;
@@ -31,10 +32,10 @@ public class FeedbackController {
     }
 
 
-    @PostMapping()
-    public ResponseEntity<?> submitFeedback(@RequestBody FeedbackSubmitRequest request) {
-        feedbackService.submitFeedback(request);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping
+    public ResponseEntity<MessageResponse> submitFeedback(@RequestBody FeedbackSubmitRequest request) {
+        MessageResponse response = feedbackService.submitFeedback(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

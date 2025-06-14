@@ -2,7 +2,6 @@ package database.cms.service;
 
 import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
-import database.cms.entity.*;
 import database.cms.detail.CustomUserDetails;
 import database.cms.entity.SalaryRecord;
 import database.cms.entity.Technician;
@@ -17,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,8 +28,11 @@ public class AdminService {
     private final SalaryRecordRepository salaryRecordRepository;
     private final VehicleRepository vehicleRepository;
     private final OrderRepository orderRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AppointmentRepository appointmentRepository;
+    private final FeedbackRepository feedbackRepository;
 
-    public AdminService(UserRepository userRepository, TechnicianRepository technicianRepository, SalaryRecordRepository salaryRecordRepository, VehicleRepository vehicleRepository, OrderRepository orderRepository, PasswordEncoder passwordEncoder) {
+    public AdminService(UserRepository userRepository, TechnicianRepository technicianRepository, SalaryRecordRepository salaryRecordRepository, VehicleRepository vehicleRepository, OrderRepository orderRepository, PasswordEncoder passwordEncoder, AppointmentRepository appointmentRepository, FeedbackRepository feedbackRepository) {
 
         this.userRepository = userRepository;
         this.technicianRepository = technicianRepository;
@@ -98,7 +98,6 @@ public class AdminService {
         admin.setEncryptedPassword(passwordEncoder.encode(request.password()));
         return new MessageResponse("success!");
     }
-}
 
     public void payTechnician(Long technicianId, double amount){
 
@@ -153,3 +152,18 @@ public class AdminService {
 
         return new NegativeCommentOrdersResponse(responses);
     }
+
+    public TechnicianPerformanceResponse statsTechnicianPerformance(){
+
+        List<Object[]> responses = appointmentRepository.countAppointmentsBySpecialization();
+
+        return new TechnicianPerformanceResponse(responses);
+    }
+
+    public UnresolvedOrdersResponse statsUnresolvedOrders(){
+
+        List<Object[]> responses = appointmentRepository.selectUnresolvedOrders();
+
+        return new UnresolvedOrdersResponse(responses);
+    }
+}

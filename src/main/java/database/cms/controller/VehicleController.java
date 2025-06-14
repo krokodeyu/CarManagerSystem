@@ -51,10 +51,9 @@ public class VehicleController {
     @PreAuthorize("hasRole('ADMIN') or @securityService.isVehicleOwner(authentication, #request.vehicleId())")
     @PutMapping
     public ResponseEntity<VehicleChangeResponse> updateVehicle(
-            @RequestBody ChangeVehicleRequest request,
-            Authentication authentication
+            @RequestBody ChangeVehicleRequest request
     ) {
-        VehicleChangeResponse response = vehicleService.update(request, authentication);
+        VehicleChangeResponse response = vehicleService.update(request);
         return ResponseEntity.ok(response);
     }
 
@@ -68,7 +67,7 @@ public class VehicleController {
     @PreAuthorize("hasRole('ADMIN') or @securityService.isOwner(authentication, #userId)")
     @GetMapping("/get/{userId}")
     public ResponseEntity<List<VehicleInfoResponse>> getUserVehicles(
-            @RequestParam Long userId
+            @PathVariable Long userId
     ) {
         List<VehicleInfoResponse> response = vehicleService.getUserVehicles(userId);
         return ResponseEntity.ok(response);

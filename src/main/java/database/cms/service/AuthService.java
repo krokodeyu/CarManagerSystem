@@ -10,8 +10,6 @@ import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import database.cms.util.JWTUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +32,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public JWTResponse Login(LoginRequest request){
         String name = request.username();
-        User user = userRepository.findByName(name)
-                .orElseThrow(()-> new ResourceNotFoundException("USER_NOT_FOUND", "无效的用户名"));
+        User user = userRepository.findByName(name);
         if(user != null){
             if (!passwordEncoder.matches(request.password(), user.getEncryptedPassword())) {
                 throw new AuthErrorException("INVALID_LOGIN_INFO", "用户名或密码错误");
@@ -43,12 +40,9 @@ public class AuthService {
                 LoginInfo loginInfo = new LoginInfo(user.getId(), user.getName(), user.getRole());
                 String token = JWTUtil.generateToken(loginInfo);
                 return new JWTResponse(token);
-
         }
 
-        Technician tech = technicianRepository.findByName(name)
-                .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND", "无效的技工名称"));
-
+        Technician tech = technicianRepository.findByName(name);
         if(tech != null){
             if(!passwordEncoder.matches(request.password(), tech.getEncryptedPassword())){
                 throw new AuthErrorException("INVALID_LOGIN_INFO", "用户名或密码错误");

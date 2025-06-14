@@ -78,14 +78,13 @@ public class AdminController {
     public ResponseEntity<MessageResponse> changePassword(
             Authentication auth,
             @RequestBody ChangePasswordRequest request
-    ){
+    ) {
         MessageResponse response = adminService.changePassword(auth, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-}
 
     @PostMapping("/pay-technician")
-    public ResponseEntity<?> payTechnician(@RequestBody PaymentRequest request){
+    public ResponseEntity<?> payTechnician(@RequestBody PaymentRequest request) {
         adminService.payTechnician(request.technicianId(), request.amount());
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -119,6 +118,7 @@ public class AdminController {
         NegativeCommentOrdersResponse response = adminService.statsNegativeCommentOrders();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @GetMapping("/stats/technician-performance")
     public ResponseEntity<?> statsTechnicianPerformance() {
         TechnicianPerformanceResponse response = adminService.statsTechnicianPerformance();
@@ -130,3 +130,4 @@ public class AdminController {
         UnresolvedOrdersResponse response = adminService.statsUnresolvedOrders();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+}

@@ -3,6 +3,7 @@ package database.cms.service;
 import database.cms.DTO.request.FeedbackSubmitRequest;
 import database.cms.DTO.response.AllFeedbackResponse;
 import database.cms.DTO.response.FeedbackCheckResponse;
+import database.cms.DTO.response.MessageResponse;
 import database.cms.DTO.response.NegativeFeedbackResponse;
 import database.cms.entity.Appointment;
 import database.cms.entity.Feedback;
@@ -12,6 +13,7 @@ import database.cms.repository.AppointmentRepository;
 import database.cms.repository.FeedbackRepository;
 import database.cms.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +40,8 @@ public class FeedbackService {
         this.feedbackRepository = feedbackRepository;
     }
 
-    public void submitFeedback(FeedbackSubmitRequest request) {
+    @Transactional
+    public MessageResponse submitFeedback(FeedbackSubmitRequest request) {
         Appointment appointment = appointmentRepository.findById(request.appointmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "订单不存在"));
         User user = userRepository.findById(request.userId())
@@ -52,7 +55,9 @@ public class FeedbackService {
 
         appointment.getFeedbacks().add(feedback);
         appointmentRepository.save(appointment);
+        feedbackRepository.save(feedback);
 
+        return new MessageResponse("success");
     }
 
     public AllFeedbackResponse getAllFeedback() {

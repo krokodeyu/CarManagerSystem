@@ -32,8 +32,7 @@ public class VehicleService {
     @Transactional
     public VehicleChangeResponse addVehicle(AddVehicleRequest request, Authentication authentication) {
         String username = authentication.getName();
-        User user = userRepository.findByName(username)
-                .orElseThrow(()-> new ResourceNotFoundException("USER_NOT_FOUND", "无效的用户名"));
+        User user = userRepository.findByName(username);
         if (user == null) {
             throw new ResourceNotFoundException("USER_NOT_FOUND", "未找到用户");
         }
@@ -75,8 +74,7 @@ public class VehicleService {
     }
 
     @Transactional
-    public VehicleChangeResponse update(ChangeVehicleRequest request,
-                                        Authentication authentication) {
+    public VehicleChangeResponse update(ChangeVehicleRequest request) {
         Vehicle vehicle = vehicleRepository.findById(request.vehicleId())
                 .orElseThrow(() -> new ResourceNotFoundException("VEHICLE_NOT_FOUND", "车辆不存在"));
         vehicle.setModel(request.model());

@@ -54,6 +54,7 @@ public class Technician {
         this.id = id;
         this.name = name;
         this.encryptedPassword = encryptedPassword;
+    }
 
     public void addReminder(Appointment appointment){
         Reminder reminder = new Reminder();
@@ -62,4 +63,7 @@ public class Technician {
         reminders.add(reminder);
     }
 
+    public Technician() {
+
+    }
 }

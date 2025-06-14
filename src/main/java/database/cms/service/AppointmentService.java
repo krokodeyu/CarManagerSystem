@@ -11,12 +11,10 @@ import database.cms.event.AppointmentCreateEvent;
 import database.cms.exception.BusinessErrorException;
 import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.*;
-import org.hibernate.validator.internal.constraintvalidators.bv.notempty.NotEmptyValidatorForArraysOfBoolean;
 import database.cms.repository.AppointmentRepository;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import database.cms.repository.VehicleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -24,27 +22,24 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
 
-    @Autowired
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
-    @Autowired
-    private TechnicianRepository technicianRepository;
-    @Autowired
-    private NotificationRepository notificationRepository;
+    private final TechnicianRepository technicianRepository;
+    private final NotificationRepository notificationRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, ApplicationEventPublisher applicationEventPublisher){
-
+    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, ApplicationEventPublisher applicationEventPublisher, TechnicianRepository technicianRepository, NotificationRepository notificationRepository){
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.vehicleRepository = vehicleRepository;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.technicianRepository = technicianRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     public String generateAppointmentId(){
@@ -163,16 +158,7 @@ public class AppointmentService {
             admin.getNotification().add(notification);
 
             return new AppointmentConfirmationResponse(true, request.appointmentId());
-        }
-
-    public MessageResponse remind(Long orderId) {
-        Appointment app = appointmentRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", "未找到订单"));
-        Technician tech = app.getTechnician();
-        tech.addReminder(app);
-        return new MessageResponse("success");
-    }
-        else {
+        } else {
             notification.setContent("The technician rejected the appointment!");
             notificationRepository.save(notification);
             admin.getNotification().add(notification);
@@ -181,6 +167,13 @@ public class AppointmentService {
         }
     }
 
+    public MessageResponse remind(Long orderId) {
+        Appointment app = appointmentRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", "未找到订单"));
+        Technician tech = app.getTechnician();
+        tech.addReminder(app);
+        return new MessageResponse("success");
+    }
 
     public ApppintmentByStatusResponse getApppintmentByStatus(Appointment.Status status){
 

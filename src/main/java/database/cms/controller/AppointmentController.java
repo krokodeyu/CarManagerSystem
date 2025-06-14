@@ -3,7 +3,6 @@ package database.cms.controller;
 import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
 import database.cms.entity.Appointment;
-import database.cms.entity.User;
 import database.cms.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

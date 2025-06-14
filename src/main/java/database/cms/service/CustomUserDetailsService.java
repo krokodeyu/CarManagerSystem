@@ -28,8 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 先查用户表
-        User user = userRepository.findByName(username)
-                .orElseThrow(()-> new ResourceNotFoundException("USER_NOT_FOUND", "无效的用户名"));
+        User user = userRepository.findByName(username);
         if (user != null) {
             return new CustomUserDetails(
                     user.getId(),
@@ -40,8 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         // 再查维修员表
-        Technician tech = technicianRepository.findByName(username)
-                .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND", "无效的技工名称"));
+        Technician tech = technicianRepository.findByName(username);
         if (tech != null) {
             return new CustomUserDetails(
                     tech.getId(),
