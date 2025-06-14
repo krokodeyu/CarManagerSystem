@@ -34,7 +34,8 @@ public class AuthService {
     @Transactional(readOnly = true)
     public JWTResponse Login(LoginRequest request){
         String name = request.username();
-        User user = userRepository.findByName(name);
+        User user = userRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "未找到用户"));
         if(user != null && passwordEncoder
                 .matches(request.password(), user.getEncryptedPassword())) {
             LoginInfo loginInfo = new LoginInfo(user.getId(), user.getName(), user.getRole());
@@ -54,4 +55,6 @@ public class AuthService {
 
         throw new AuthErrorException("INVALID_LOGIN_INFO", "用户名或密码错误");
     }
+
+
 }

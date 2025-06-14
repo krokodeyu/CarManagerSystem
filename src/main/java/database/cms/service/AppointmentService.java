@@ -6,12 +6,14 @@ import database.cms.DTO.request.AppointmentRequest;
 import database.cms.DTO.request.AppointmentRevisionRequest;
 import database.cms.DTO.response.*;
 import database.cms.entity.Appointment;
+import database.cms.entity.Technician;
 import database.cms.entity.User;
 import database.cms.entity.Vehicle;
 import database.cms.event.AppointmentCreateEvent;
 import database.cms.exception.BusinessErrorException;
 import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.AppointmentRepository;
+import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import database.cms.repository.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ public class AppointmentService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private TechnicianRepository technicianRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, ApplicationEventPublisher applicationEventPublisher){
 
@@ -153,4 +157,11 @@ public class AppointmentService {
         return new AppointmentConfirmationResponse(true, request.id()); // 模拟订单号
     }
 
+    public MessageResponse remind(Long orderId) {
+        Appointment app = appointmentRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", "未找到订单"));
+        Technician tech = app.getTechnician();
+        tech.addReminder(app);
+        return new MessageResponse("success");
+    }
 }

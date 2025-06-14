@@ -6,6 +6,7 @@ import database.cms.entity.User;
 import database.cms.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 /*预约管理 `/appointments`
@@ -68,4 +69,14 @@ public class AppointmentController {
         AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PostMapping("/{orderId}/reminder")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isOrderUser(authentication, orderId)")
+    public ResponseEntity<MessageResponse> remindAppointment(
+            @PathVariable Long orderId
+    ) {
+        MessageResponse response = appointmentService.remind(orderId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
+

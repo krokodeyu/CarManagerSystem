@@ -39,15 +39,13 @@ public class Technician {
     @OneToMany(mappedBy = "technician")
     private List<Appointment> appointments;
 
+    @OneToMany(mappedBy = "technician")
+    private List<Reminder> reminders;
 
-    public Technician(Long id, String name, String encryptedPassword) {
-        this.id = id;
-        this.name = name;
-        this.encryptedPassword = encryptedPassword;
-
-    }
-
-    public Technician() {
-
+    public void addReminder(Appointment appointment){
+        Reminder reminder = new Reminder();
+        reminder.setTechnician(this);
+        reminder.setAppointment(appointment);
+        reminders.add(reminder);
     }
 }

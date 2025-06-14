@@ -2,10 +2,12 @@ package database.cms.controller;
 
 import database.cms.DTO.request.TechRegisterRequest;
 import database.cms.DTO.request.TechUpdateRequest;
+import database.cms.DTO.response.ReminderResponse;
 import database.cms.DTO.response.TechnicianInfoResponse;
 import database.cms.service.TechnicianService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,5 +54,12 @@ public class TechnicianController {
     public ResponseEntity<TechnicianInfoResponse> getTechnicianInfo(@PathVariable Long technicianId) {
         TechnicianInfoResponse response = technicianService.getInfo(technicianId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/check")
+    @PreAuthorize("hasRole('TECH')")
+    public ResponseEntity<List<ReminderResponse>> checkReminders(Authentication authentication){
+        List<ReminderResponse> responses = technicianService.checkReminders(authentication);
+        return ResponseEntity.ok(responses);
     }
 }

@@ -1,6 +1,7 @@
 package database.cms.service;
 
 import database.cms.detail.CustomUserDetails;
+import database.cms.repository.AppointmentRepository;
 import database.cms.repository.VehicleRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -9,9 +10,11 @@ import org.springframework.stereotype.Service;
 public class SecurityService {
 
     private final VehicleRepository vehicleRepository;
+    private final AppointmentRepository appointmentRepository;
 
-    public SecurityService(VehicleRepository vehicleRepository) {
+    public SecurityService(VehicleRepository vehicleRepository, AppointmentRepository appointmentRepository) {
         this.vehicleRepository = vehicleRepository;
+        this.appointmentRepository = appointmentRepository;
     }
 
     /**
@@ -40,5 +43,14 @@ public class SecurityService {
         Long userId = userDetails.getId();
 
         return vehicleRepository.existsByIdAndUserId(vehicleId, userId);
+    }
+
+    public boolean isOrderUser(Authentication authentication, Long orderId) {
+        if (authentication == null || !authentication.isAuthenticated()) return false;
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        return appointmentRepository.existsByIdAndUserId(orderId, userId);
     }
 }
