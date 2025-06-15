@@ -22,16 +22,14 @@ import java.util.Optional;
 public class TechnicianService {
 
     private final TechnicianRepository technicianRepository;
-    private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
     private final RepairItemRepository repairItemRepository;
     private final AppointmentRepository appointmentRepository;
     private final SparePartRepository sparePartRepository;
     private final SalaryRecordRepository salaryRecordRepository;
 
-    public TechnicianService(TechnicianRepository technicianRepository, NotificationRepository notificationRepository, RepairItemRepository repairItemRepository, AppointmentRepository appointmentRepository, SparePartRepository sparePartRepository, SalaryRecordRepository salaryRecordRepository) {
+    public TechnicianService(TechnicianRepository technicianRepository, RepairItemRepository repairItemRepository, AppointmentRepository appointmentRepository, SparePartRepository sparePartRepository, SalaryRecordRepository salaryRecordRepository) {
         this.technicianRepository = technicianRepository;
-        this.notificationRepository = notificationRepository;
         this.repairItemRepository = repairItemRepository;
         this.sparePartRepository = sparePartRepository;
         passwordEncoder = new BCryptPasswordEncoder();
@@ -110,26 +108,6 @@ public class TechnicianService {
                 tech.getSpecialization().getString(),
                 tech.getCreatedAt()
         );
-    }
-
-    private ReminderResponse generateReminderResponse(Reminder reminder){
-        return new ReminderResponse(
-                reminder.getId(),
-                reminder.getAppointment().getId(),
-                reminder.getTechnician().getId()
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public List<ReminderResponse> checkReminders(Authentication authentication) {
-        CustomUserDetails details = (CustomUserDetails) authentication.getPrincipal();
-        Technician tech = technicianRepository.findById(details.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("TECH_NOT_FOUND", "未找到修理人员"));
-        List<ReminderResponse> reminders = new ArrayList<>();
-        for(Reminder reminder : tech.getReminders()) {
-            reminders.add(generateReminderResponse(reminder));
-        }
-        return reminders;
     }
 
     public List<RepairItemCheckResponse> checkRepairItem(Long appointmentId) {

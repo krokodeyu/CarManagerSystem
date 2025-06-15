@@ -55,13 +55,6 @@ public class TechnicianController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/check")
-    @PreAuthorize("hasRole('TECH')")
-    public ResponseEntity<List<ReminderResponse>> checkReminders(Authentication authentication){
-        List<ReminderResponse> responses = technicianService.checkReminders(authentication);
-        return new ResponseEntity<>(responses, HttpStatus.OK);
-    }
-
     @PreAuthorize("hasRole('TECH')")
     @GetMapping("/appointment/{appointmentId}/items/check")
     public ResponseEntity<List<RepairItemCheckResponse>> checkRepairItems(@PathVariable Long appointmentId){

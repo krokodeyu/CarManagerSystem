@@ -3,6 +3,7 @@ package database.cms.service;
 import database.cms.DTO.request.UserRegisterRequest;
 import database.cms.DTO.request.UserUpdateRequest;
 import database.cms.DTO.response.NotificationResponse;
+import database.cms.DTO.response.NotificationsResponse;
 import database.cms.DTO.response.RegisterResponse;
 import database.cms.DTO.response.UserInfoResponse;
 import database.cms.detail.CustomUserDetails;
@@ -12,6 +13,7 @@ import database.cms.entity.Technician;
 import database.cms.entity.User;
 import database.cms.exception.AuthErrorException;
 import database.cms.exception.ResourceNotFoundException;
+import database.cms.repository.NotificationRepository;
 import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import org.springframework.security.core.Authentication;
@@ -32,11 +34,13 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final TechnicianRepository technicianRepository;
+    private final NotificationRepository notificationRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TechnicianRepository technicianRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TechnicianRepository technicianRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.technicianRepository = technicianRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @Transactional(readOnly = true)
@@ -105,12 +109,14 @@ public class UserService {
         return generateResponse(user);
     }
 
-    public List<NotificationResponse> checkNotification(Long id, Authentication authentication) {
+    public NotificationsResponse checkNotification(Authentication authentication) {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         Role role = customUserDetails.getRole();
+        Long id = customUserDetails.getId();
 
         List<NotificationResponse> responses = new ArrayList<>();
+        boolean newInfo = false;
 
         if ((role.equals(Role.USER)) || (role.equals(Role.ADMIN))) {
             User user = userRepository.findById(id)
@@ -125,6 +131,11 @@ public class UserService {
                         n.getContent()
                 );
                 responses.add(response);
+                if(!n.getIsRead()){
+                    newInfo = true;
+                    n.setIsRead(true);
+                    notificationRepository.save(n);
+                }
             }
         } else if (role.equals(Role.TECH)) {
             Technician technician = technicianRepository.findById(id)
@@ -132,15 +143,23 @@ public class UserService {
 
             List<Notification> notificationList = technician.getNotification();
             for (Notification n : notificationList) {
-                NotificationResponse response = new NotificationResponse(
-                        n.getId(),
-                        Optional.ofNullable(n.getUser().getId()),
-                        null,
-                        n.getContent()
-                );
-                responses.add(response);
+                if(!n.getIsRead()){
+                    newInfo = true;
+                    n.setIsRead(true);
+                    notificationRepository.save(n);
+                    NotificationResponse response = new NotificationResponse(
+                            n.getId(),
+                            Optional.ofNullable(n.getUser().getId()),
+                            Optional.ofNullable(n.getTechnician().getId()),
+                            n.getContent()
+                    );
+                    responses.add(response);
+                }
             }
         }
-        return responses;
+        return new NotificationsResponse(
+                responses,
+                newInfo
+        );
     }
 }

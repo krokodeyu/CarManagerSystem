@@ -3,6 +3,7 @@ package database.cms.controller;
 import database.cms.DTO.request.UserRegisterRequest;
 import database.cms.DTO.request.UserUpdateRequest;
 import database.cms.DTO.response.NotificationResponse;
+import database.cms.DTO.response.NotificationsResponse;
 import database.cms.DTO.response.RegisterResponse;
 import database.cms.DTO.response.UserInfoResponse;
 import database.cms.service.SecurityService;
@@ -61,10 +62,9 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/check-notification/{userId}")
-    @PreAuthorize("@securityService.isOwner(authentication, #userId)")
-    public ResponseEntity<?> checkNotification(@PathVariable Long userId, Authentication authentication) {
-        List<NotificationResponse> response = userService.checkNotification(userId, authentication);
+    @GetMapping("/check-notification")
+    public ResponseEntity<NotificationsResponse> checkNotification(Authentication authentication) {
+        NotificationsResponse response = userService.checkNotification(authentication);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

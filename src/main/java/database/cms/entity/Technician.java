@@ -40,9 +40,6 @@ public class Technician {
     private List<Appointment> appointments;
 
     @OneToMany(mappedBy = "technician")
-    private List<Reminder> reminders;
-
-    @OneToMany(mappedBy = "technician")
     private List<SalaryRecord> salaryRecords;
 
     @OneToMany(mappedBy = "technician")
@@ -55,12 +52,15 @@ public class Technician {
         this.encryptedPassword = encryptedPassword;
     }
 
-    public Reminder addReminder(Appointment appointment){
-        Reminder reminder = new Reminder();
-        reminder.setTechnician(this);
-        reminder.setAppointment(appointment);
-        reminders.add(reminder);
-        return reminder;
+    public Notification addNotification(Appointment appointment){
+        Notification n = new Notification();
+        n.setIsRead(false);
+        n.setTechnician(this);
+        n.setUser(appointment.getUser());
+        n.setAppointmentId(appointment.getId());
+        n.setContent("用户催单，单号" + appointment.getAppointmentId());
+        notifications.add(n);
+        return n;
     }
 
     public Technician() {

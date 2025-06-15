@@ -16,8 +16,6 @@ import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
 import database.cms.repository.VehicleRepository;
 
-import org.springframework.context.ApplicationEventPublisher;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class AppointmentService {
@@ -34,19 +31,15 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final TechnicianRepository technicianRepository;
     private final NotificationRepository notificationRepository;
-    private final ReminderRepository reminderRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, TechnicianRepository technicianRepository, NotificationRepository notificationRepository, ReminderRepository reminderRepository){
+    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, TechnicianRepository technicianRepository, NotificationRepository notificationRepository){
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.vehicleRepository = vehicleRepository;
-        this.applicationEventPublisher = applicationEventPublisher;
         this.technicianRepository = technicianRepository;
         this.notificationRepository = notificationRepository;
-        this.reminderRepository = reminderRepository;
     }
 
     public AppointmentResponse createAppointment(AppointmentRequest request, Authentication authentication){
@@ -63,15 +56,14 @@ public class AppointmentService {
         appointment.setVehicle(vehicle);
         appointment.setStatus(Appointment.Status.UNACCEPTED);
         appointment.setCreatedAt(LocalDateTime.now());
-        appointment.setAppointmentId(generateAppointmentId());
         appointmentRepository.save(appointment);
 
         return new AppointmentResponse(
                 appointment.getId(),
-                user.getId(),
+                appointment.getAppointmentId(),
                 vehicle.getId(),
                 null,
-                appointment.getAppointmentId(),
+                appointment.getTechnician().getId(),
                 Appointment.Status.UNACCEPTED,
                 appointment.getCreatedAt(),
                 LocalDateTime.now()
@@ -135,9 +127,6 @@ public class AppointmentService {
     public AppointmentConfirmationResponse confirmAppointment(AppointmentConfirmationRequest request, Authentication authentication){
         CustomUserDetails details = (CustomUserDetails) authentication.getPrincipal();
         Long techId = details.getId();
-        Technician tech = technicianRepository.findById(techId)
-                .orElseThrow(() -> new ResourceNotFoundException("TECH_NOT_FOUND", "未找到员工"));
-
         User admin = userRepository.findAdmin();
 
         Appointment existingAppointment = appointmentRepository.findById(request.appointmentId())
@@ -151,8 +140,6 @@ public class AppointmentService {
         notification.setAppointmentId(existingAppointment.getId());
 
         if (request.confirm()) {
-            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-            Long techId = customUserDetails.getId();
             Technician technician = technicianRepository.findById(techId)
                     .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND","未找到技工"));
 
@@ -179,9 +166,9 @@ public class AppointmentService {
         Appointment app = appointmentRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", "未找到订单"));
         Technician tech = app.getTechnician();
-        Reminder reminder = tech.addReminder(app);
+        Notification n = tech.addNotification(app);
         technicianRepository.save(tech);
-        reminderRepository.save(reminder);
+        notificationRepository.save(n);
         return new MessageResponse("success");
     }
 

@@ -28,6 +28,9 @@ public class Notification {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "is_read")
+    private Boolean isRead;
+
     public Notification() {
 
     }
