@@ -42,6 +42,7 @@ public class VehicleService {
         vehicle.setLicensePlate(request.licensePlate());
 
         user.getVehicles().add(vehicle);
+        vehicleRepository.save(vehicle);
         userRepository.save(user); // 自动存储vehicle
 
         return new VehicleChangeResponse(

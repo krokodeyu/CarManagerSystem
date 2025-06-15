@@ -103,6 +103,13 @@ public class TechnicianController {
         MessageResponse response = technicianService.deleteAppointmentPart(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('TECH')")
+    @GetMapping("/avg-salary")
+    public ResponseEntity<AvgSalaryResponse> getAvgSalary(Authentication authentication){
+        AvgSalaryResponse response = technicianService.calculateAvgSalary(authentication);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
 
 

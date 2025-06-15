@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,33 +37,22 @@ public class AppointmentService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final TechnicianRepository technicianRepository;
     private final NotificationRepository notificationRepository;
+    private final ReminderRepository reminderRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, ApplicationEventPublisher applicationEventPublisher, TechnicianRepository technicianRepository, NotificationRepository notificationRepository){
+    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, VehicleRepository vehicleRepository, TechnicianRepository technicianRepository, NotificationRepository notificationRepository, ReminderRepository reminderRepository){
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
         this.vehicleRepository = vehicleRepository;
         this.applicationEventPublisher = applicationEventPublisher;
         this.technicianRepository = technicianRepository;
         this.notificationRepository = notificationRepository;
+        this.reminderRepository = reminderRepository;
     }
 
-    public String generateAppointmentId(){
-        String appointmentId;
-
-        do {
-            UUID uuid = UUID.randomUUID();
-            appointmentId = uuid.toString()
-                    .replace("-", "")  // 移除连字符
-                    .substring(0, 16)  // 截取前16位
-                    .toUpperCase();
-        } while (appointmentRepository.existsByAppointmentId(appointmentId));
-
-        return appointmentId;
-    }
-
-    public AppointmentResponse createAppointment(AppointmentRequest request){
-
-        User user = userRepository.findById(request.userId())
+    public AppointmentResponse createAppointment(AppointmentRequest request, Authentication authentication){
+        CustomUserDetails details = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = details.getId();
+        User user = userRepository.findById(userId)
                 .orElseThrow(()-> new ResourceNotFoundException("USER_NOT_FOUND", "用户不存在"));
 
         Vehicle vehicle = vehicleRepository.findById(request.vehicleId())
@@ -78,10 +68,10 @@ public class AppointmentService {
 
         return new AppointmentResponse(
                 appointment.getId(),
-                appointment.getAppointmentId(),
                 user.getId(),
                 vehicle.getId(),
                 null,
+                appointment.getAppointmentId(),
                 Appointment.Status.UNACCEPTED,
                 appointment.getCreatedAt(),
                 LocalDateTime.now()
@@ -143,6 +133,10 @@ public class AppointmentService {
     }
 
     public AppointmentConfirmationResponse confirmAppointment(AppointmentConfirmationRequest request, Authentication authentication){
+        CustomUserDetails details = (CustomUserDetails) authentication.getPrincipal();
+        Long techId = details.getId();
+        Technician tech = technicianRepository.findById(techId)
+                .orElseThrow(() -> new ResourceNotFoundException("TECH_NOT_FOUND", "未找到员工"));
 
         User admin = userRepository.findAdmin();
 
@@ -180,11 +174,14 @@ public class AppointmentService {
         }
     }
 
+    @Transactional
     public MessageResponse remind(Long orderId) {
         Appointment app = appointmentRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("ORDER_NOT_FOUND", "未找到订单"));
         Technician tech = app.getTechnician();
-        tech.addReminder(app);
+        Reminder reminder = tech.addReminder(app);
+        technicianRepository.save(tech);
+        reminderRepository.save(reminder);
         return new MessageResponse("success");
     }
 
