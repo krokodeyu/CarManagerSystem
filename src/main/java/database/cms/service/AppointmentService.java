@@ -67,16 +67,10 @@ public class AppointmentService {
         Vehicle vehicle = vehicleRepository.findById(request.vehicleId())
                 .orElseThrow(()-> new ResourceNotFoundException("VEHICLE_NOT_FOUND", "车辆不存在"));
 
-        Appointment appointment = new Appointment(
-                null,
-                 user,
-                 vehicle,
-                null,
-                 Appointment.Status.UNACCEPTED
-        );
-
-
-
+        Appointment appointment = new Appointment();
+        appointment.setUser(user);
+        appointment.setVehicle(vehicle);
+        appointment.setStatus(Appointment.Status.UNACCEPTED);
         appointment.setCreatedAt(LocalDateTime.now());
         appointment.setAppointmentId(generateAppointmentId());
         appointmentRepository.save(appointment);

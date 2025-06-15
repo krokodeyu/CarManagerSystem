@@ -76,13 +76,5 @@ public class Appointment {
     @Column(name = "total_cost")
     private Double totalCost;
 
-
-    public Appointment(Long id, User user, Vehicle vehicle, Technician technician, Status status) {
-        this.id = id;
-        this.user = user;
-        this.vehicle = vehicle;
-        this.technician = technician;
-        this.status = status;
-    }
     // Getters and setters omitted for brevity
 }
