@@ -45,8 +45,7 @@ public class Technician {
     @OneToMany(mappedBy = "technician")
     private List<SalaryRecord> salaryRecords;
 
-    @OneToMany
-    @JoinColumn(name = "notification")
+    @OneToMany(mappedBy = "technician")
     private List<Notification> notifications;
 
 
@@ -66,4 +65,6 @@ public class Technician {
     public Technician() {
 
     }
+
+    public List<Notification> getNotification() {return notifications;}
 }

@@ -2,6 +2,7 @@ package database.cms.service;
 
 import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
+import database.cms.detail.CustomUserDetails;
 import database.cms.entity.*;
 import database.cms.entity.Appointment;
 import database.cms.entity.Technician;
@@ -77,27 +78,52 @@ public class AppointmentService {
 
         return new AppointmentResponse(
                 appointment.getId(),
+                appointment.getAppointmentId(),
                 user.getId(),
                 vehicle.getId(),
                 null,
-                appointment.getAppointmentId(),
                 Appointment.Status.UNACCEPTED,
                 appointment.getCreatedAt(),
                 LocalDateTime.now()
         );
     }
     // Authorization?
-    public AllAppointmentResponse getAllAppointment(){
+    public List<AppointmentResponse> getAllAppointment(){
 
-        return new AllAppointmentResponse(appointmentRepository.findAll());
+        List<Appointment> appointments = appointmentRepository.findAll();
+        List<AppointmentResponse> appointmentResponses = new ArrayList<>();
+
+        for (Appointment appointment : appointments) {
+            AppointmentResponse response = new AppointmentResponse(
+                    appointment.getId(),
+                    appointment.getAppointmentId(),
+                    appointment.getUser().getId(),
+                    appointment.getVehicle().getId(),
+                    appointment.getTechnician().getId(),
+                    appointment.getStatus(),
+                    appointment.getCreatedAt(),
+                    appointment.getUpdatedAt()
+            );
+            appointmentResponses.add(response);
+        }
+        return appointmentResponses;
     }
 
-    public AppointmentDetailResponse getAppointmentDetail(Long appointmentId){
+    public AppointmentResponse getAppointmentDetail(Long appointmentId){
 
         Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(()-> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "无效订单号"));
 
-        return new AppointmentDetailResponse(appointment);
+        return new AppointmentResponse(
+                appointment.getId(),
+                appointment.getAppointmentId(),
+                appointment.getUser().getId(),
+                appointment.getVehicle().getId(),
+                appointment.getTechnician().getId(),
+                appointment.getStatus(),
+                appointment.getCreatedAt(),
+                appointment.getUpdatedAt()
+        );
     }
 
 
@@ -116,7 +142,7 @@ public class AppointmentService {
         return new AppointmentCancelResponse(true);
     }
 
-    public AppointmentConfirmationResponse confirmAppointment(AppointmentConfirmationRequest request){
+    public AppointmentConfirmationResponse confirmAppointment(AppointmentConfirmationRequest request, Authentication authentication){
 
         User admin = userRepository.findAdmin();
 
@@ -131,7 +157,13 @@ public class AppointmentService {
         notification.setAppointmentId(existingAppointment.getId());
 
         if (request.confirm()) {
+            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long techId = customUserDetails.getId();
+            Technician technician = technicianRepository.findById(techId)
+                    .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND","未找到技工"));
+
             existingAppointment.setStatus(Appointment.Status.ONGOING);
+            existingAppointment.setTechnician(technician);
             appointmentRepository.save(existingAppointment);
 
             notification.setContent("The technician has confirmed the appointment!");

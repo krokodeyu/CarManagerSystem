@@ -2,16 +2,16 @@ package database.cms.controller;
 
 import database.cms.DTO.request.PartStoreRequest;
 import database.cms.DTO.request.PartUpdateRequest;
-import database.cms.DTO.response.AllPartsResponse;
+import database.cms.DTO.response.PartsResponse;
 import database.cms.DTO.response.LowStockResponse;
 import database.cms.DTO.response.MessageResponse;
-import database.cms.DTO.response.PartDetailResponse;
 import database.cms.service.PartService;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /*
 方法	路径	描述	权限
@@ -44,37 +44,37 @@ public class PartController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<AllPartsResponse> allParts() {
-        AllPartsResponse response = partService.getAllParts();
+    public ResponseEntity<List<PartsResponse>> allParts() {
+        List<PartsResponse> response = partService.getAllParts();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<PartDetailResponse> getPartDetail(@PathVariable Long id) {
-        PartDetailResponse response = partService.getPartDetail(id);
+    public ResponseEntity<PartsResponse> getPartDetail(@PathVariable Long id) {
+        PartsResponse response = partService.getPartDetail(id);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePart(@RequestBody PartUpdateRequest request) {
-        partService.updatePart(request);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<MessageResponse> updatePart(@RequestBody PartUpdateRequest request) {
+        MessageResponse response = partService.updatePart(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePart(@PathVariable Long id) {
-        partService.deletePart(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<MessageResponse> deletePart(@PathVariable Long id) {
+        MessageResponse response = partService.deletePart(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("low-stock")
-    public ResponseEntity<LowStockResponse> lowStockParts() {
-        partService.getLowStock();
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<List<LowStockResponse>> lowStockParts() {
+        List<LowStockResponse> response = partService.getLowStock();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

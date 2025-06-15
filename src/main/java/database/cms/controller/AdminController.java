@@ -10,6 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /*管理员控制`/admin`
 
         | 方法     | 路径                   | 描述          | 权限    |
@@ -53,29 +55,8 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/salaries")
-    public ResponseEntity<SalaryRecordResponse> checkAllSalaries() {
-        SalaryRecordResponse response = adminService.checkAllSalaryRecord();
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/vehicles/{vehicleId}")
-    public ResponseEntity<VehicleCheckResponse> checkVehicle(@PathVariable Long vehicleId) {
-        VehicleCheckResponse response = adminService.checkVehicle(vehicleId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/orders/{orderId}")
-    public ResponseEntity<OrderCheckResponse> checkOrder(@PathVariable Long orderId) {
-        OrderCheckResponse response = adminService.checkOrder(orderId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/records")
-    public ResponseEntity<MaintenanceRecordResponse> checkAllRecords() {
-        MaintenanceRecordResponse response = adminService.checkAllMaintenanceRecord();
+    public ResponseEntity<List<SalaryRecordResponse>> checkAllSalaries() {
+        List<SalaryRecordResponse> response = adminService.checkAllSalaryRecord();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -90,6 +71,7 @@ public class AdminController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    //success
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/pay-technician")
     public ResponseEntity<?> payTechnician(@RequestBody PaymentRequest request) {
@@ -97,9 +79,10 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    //success
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/average-repair-fees")
-    public ResponseEntity<?> statsAverageRepairFees(String model) {
+    public ResponseEntity<?> statsAverageRepairFees(@RequestParam String model) {
         AverageRepairFeeResponse response = adminService.statsAverageRepairFees(model);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -111,10 +94,11 @@ public class AdminController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // success
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats/most-frequent-failures")
     public ResponseEntity<?> statsMostFrequentFailures(@RequestParam String model) {
-        MostFrequentFailuresResponse response = adminService.statsMostFrequentFailures(model);
+        List<MostFrequentFailuresResponse> response = adminService.statsMostFrequentFailures(model);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

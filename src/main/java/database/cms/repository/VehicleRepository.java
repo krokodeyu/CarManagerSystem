@@ -2,8 +2,10 @@ package database.cms.repository;
 
 import database.cms.entity.Appointment;
 import database.cms.entity.Vehicle;
+import jakarta.persistence.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +17,6 @@ import java.util.Optional;
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     boolean existsByIdAndUserId(Long vehicleId, Long userId);
 
-    List<Appointment.Status> excludedStatuses = Arrays.asList(Appointment.Status.CANCELLED, Appointment.Status.UNACCEPTED);
     List<Vehicle> findAllByUserId(Long userId);
 
     Optional<List<Vehicle>> findAllByModel(String model);
@@ -24,12 +25,13 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
             "FROM Appointment a " +
             "WHERE a.vehicle.model = :model " +
             "AND a.status NOT IN :excludedStatuses")
-    Object[] sumTotalCostAndCount(@Param("model") String model);
+    Tuple sumTotalCostAndCount(@Param("model") String model, @Param("excludedStatuses") List<Appointment.Status> excludedStatuses);
 
-    @Query("SELECT a.vehicle.model, COUNT(a) FROM Appointment a " +
+    @Query("SELECT a.vehicle.model, COUNT(a) " +
+            "FROM Appointment a " +
             "WHERE a.status NOT IN :excludedStatuses " +
             "GROUP BY a.vehicle.model")
-    List<Object[]> countValidAppointmentsByModel();
+    List<Tuple> countValidAppointmentsByModel(@Param("excludedStatuses") List<Appointment.Status> excludedStatuses);
 
 
 }

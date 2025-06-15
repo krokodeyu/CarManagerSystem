@@ -5,17 +5,25 @@ import database.cms.DTO.request.UserUpdateRequest;
 import database.cms.DTO.response.NotificationResponse;
 import database.cms.DTO.response.RegisterResponse;
 import database.cms.DTO.response.UserInfoResponse;
+import database.cms.detail.CustomUserDetails;
+import database.cms.entity.Notification;
 import database.cms.entity.Role;
+import database.cms.entity.Technician;
 import database.cms.entity.User;
 import database.cms.exception.AuthErrorException;
 import database.cms.exception.ResourceNotFoundException;
+import database.cms.repository.TechnicianRepository;
 import database.cms.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static javax.management.Query.or;
 
 @Service
 public class UserService {
@@ -23,10 +31,12 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final TechnicianRepository technicianRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, TechnicianRepository technicianRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.technicianRepository = technicianRepository;
     }
 
     @Transactional(readOnly = true)
@@ -95,10 +105,42 @@ public class UserService {
         return generateResponse(user);
     }
 
-    public NotificationResponse checkNotification(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "用户不存在"));
+    public List<NotificationResponse> checkNotification(Long id, Authentication authentication) {
 
-        return new NotificationResponse(user.getNotification());
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        Role role = customUserDetails.getRole();
+
+        List<NotificationResponse> responses = new ArrayList<>();
+
+        if ((role.equals(Role.USER)) || (role.equals(Role.ADMIN))) {
+            User user = userRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "用户不存在"));
+
+            List<Notification> notificationList = user.getNotification();
+            for (Notification n : notificationList) {
+                NotificationResponse response = new NotificationResponse(
+                        n.getId(),
+                        Optional.ofNullable(n.getUser().getId()),
+                        null,
+                        n.getContent()
+                );
+                responses.add(response);
+            }
+        } else if (role.equals(Role.TECH)) {
+            Technician technician = technicianRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("TECH_NOT_FOUND", "技工不存在"));
+
+            List<Notification> notificationList = technician.getNotification();
+            for (Notification n : notificationList) {
+                NotificationResponse response = new NotificationResponse(
+                        n.getId(),
+                        Optional.ofNullable(n.getUser().getId()),
+                        null,
+                        n.getContent()
+                );
+                responses.add(response);
+            }
+        }
+        return responses;
     }
 }

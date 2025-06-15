@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 
 public record AppointmentResponse (
         Long id,
+        String appointmentId,
         Long userId,
         Long vehicleId,
         Long technicianId,
-        String appointmentId,
         Appointment.Status status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt

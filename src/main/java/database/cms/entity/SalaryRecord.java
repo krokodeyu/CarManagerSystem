@@ -19,6 +19,6 @@ public class SalaryRecord {
     private Technician technician;
 
     @Column(name = "amount")
-    private double amount;
+    private Double amount;
 
 }

@@ -7,7 +7,10 @@ import database.cms.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /*预约管理 `/appointments`
 
@@ -41,14 +44,14 @@ public class AppointmentController {
     }
 
     @GetMapping("/get-all")
-    public ResponseEntity<AllAppointmentResponse> getAppointment (){
-        AllAppointmentResponse response = appointmentService.getAllAppointment();
+    public ResponseEntity<List<AppointmentResponse>> getAppointment (){
+        List<AppointmentResponse> response = appointmentService.getAllAppointment();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/get-detail/{appointmentId}")
-    public ResponseEntity<AppointmentDetailResponse> getDetail (@PathVariable Long appointmentId){
-        AppointmentDetailResponse response = appointmentService.getAppointmentDetail(appointmentId);
+    public ResponseEntity<AppointmentResponse> getDetail (@PathVariable Long appointmentId){
+        AppointmentResponse response = appointmentService.getAppointmentDetail(appointmentId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -61,8 +64,8 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('TECH')")
     @PostMapping("/confirm")
-    public ResponseEntity<AppointmentConfirmationResponse> confirmAppointment (@RequestBody AppointmentConfirmationRequest request){
-        AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request);
+    public ResponseEntity<AppointmentConfirmationResponse> confirmAppointment (@RequestBody AppointmentConfirmationRequest request, Authentication authentication){
+        AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request, authentication);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

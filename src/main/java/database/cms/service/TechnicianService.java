@@ -155,6 +155,7 @@ public class TechnicianService {
         repairItem.setAppointment(appointment);
         repairItem.setDescription(request.Description());
         repairItem.setCost(request.cost());
+        repairItemRepository.save(repairItem);
 
         appointment.getRepairItems().add(repairItem);
 
@@ -190,11 +191,9 @@ public class TechnicianService {
 
     public MessageResponse addAppointmentPart(AppointmentPartAddRequest request) {
 
-        System.out.println("尻》？" + request.appointmentId());
         Appointment appointment = appointmentRepository.findById(request.appointmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "未找到订单"));
 
-        System.out.println("尻》？" + request.partId());
         SparePart sparePart = sparePartRepository.findById(request.partId())
                 .orElseThrow(()-> new ResourceNotFoundException("PART_NOT_FOUND","配件未找到"));
 

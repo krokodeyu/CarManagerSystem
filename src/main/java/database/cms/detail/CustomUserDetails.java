@@ -1,5 +1,6 @@
 package database.cms.detail;
 
+import database.cms.entity.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,13 +13,16 @@ public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String username;
     private final String password;
+    @Getter
+    private final Role role;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Long id, String username, String password,
+    public CustomUserDetails(Long id, String username, String password, Role role,
                              Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.role = role;
         this.authorities = authorities;
     }
 
@@ -57,4 +61,5 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

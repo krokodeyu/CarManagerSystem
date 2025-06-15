@@ -2,15 +2,15 @@ package database.cms.service;
 
 import database.cms.DTO.request.PartStoreRequest;
 import database.cms.DTO.request.PartUpdateRequest;
-import database.cms.DTO.response.AllPartsResponse;
+import database.cms.DTO.response.PartsResponse;
 import database.cms.DTO.response.LowStockResponse;
 import database.cms.DTO.response.MessageResponse;
-import database.cms.DTO.response.PartDetailResponse;
 import database.cms.entity.SparePart;
 import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.SparePartRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -43,33 +43,65 @@ public class PartService {
 
     }
 
-    public AllPartsResponse getAllParts() {
-        return new AllPartsResponse(sparePartRepository.findAll());
+    public List<PartsResponse> getAllParts() {
+
+        List<SparePart> spareParts = sparePartRepository.findAll();
+        List<PartsResponse> partsResponses = new ArrayList<>();
+        for (SparePart p : spareParts) {
+            PartsResponse response = new PartsResponse(
+                 p.getId(),
+                 p.getName(),
+                 p.getPrice(),
+                 p.getQuantity(),
+                 p.getCreatedAt()
+            );
+            partsResponses.add(response);
+        }
+        return partsResponses;
     }
 
-    public PartDetailResponse getPartDetail(Long partId) {
+    public PartsResponse getPartDetail(Long partId) {
 
         SparePart sparePart = sparePartRepository.findById(partId)
                 .orElseThrow(() -> new ResourceNotFoundException("PART_NOT_FOUND", "配件不存在"));
 
-        return new PartDetailResponse(sparePart);
+        return new PartsResponse(
+                sparePart.getId(),
+                sparePart.getName(),
+                sparePart.getPrice(),
+                sparePart.getQuantity(),
+                sparePart.getCreatedAt()
+        );
     }
 
-    public void updatePart(PartUpdateRequest request) {
+    public MessageResponse updatePart(PartUpdateRequest request) {
         SparePart OriginalPart = sparePartRepository.findById(request.partId())
                 .orElseThrow(()-> new ResourceNotFoundException("PART_NOT_FOUND", "配件不存在"));
 
         request.updatedSparePart().setId(request.partId());
         sparePartRepository.save(request.updatedSparePart());
+
+        return new MessageResponse("Successfully updated part!");
     }
 
-    public void deletePart(Long partId) {
+    public MessageResponse deletePart(Long partId) {
         sparePartRepository.deleteById(partId);
+        return new MessageResponse("Successfully deleted part!");
     }
 
-    public LowStockResponse getLowStock() {
+    public List<LowStockResponse> getLowStock() {
         List<SparePart> lowStock = sparePartRepository.findByQuantityLessThan(20);
-        return new LowStockResponse(lowStock);
+        List<LowStockResponse> lowStockResponses = new ArrayList<>();
+        for (SparePart p : lowStock) {
+            LowStockResponse response = new LowStockResponse(
+                    p.getId(),
+                    p.getName(),
+                    p.getQuantity()
+            );
+            lowStockResponses.add(response);
+        }
+        return lowStockResponses;
+
     }
 
 }

@@ -34,6 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                     user.getId(),
                     user.getName(),
                     user.getEncryptedPassword(),
+                    user.getRole(),
                     Collections.singleton(() -> "ROLE_" + user.getRole().name())
             );
         }
@@ -45,6 +46,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                     tech.getId(),
                     tech.getName(),
                     tech.getEncryptedPassword(),
+                    tech.getRole(),
                     Collections.singleton(() -> "ROLE_" + tech.getRole().name())
             );
         }

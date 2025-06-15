@@ -3,6 +3,6 @@ package database.cms.DTO.response;
 import java.util.List;
 
 public record TechnicianPerformanceResponse(
-        List<Object[]> performance
+        List<jakarta.persistence.Tuple> performance
 ) {
 }

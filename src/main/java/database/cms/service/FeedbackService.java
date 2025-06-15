@@ -1,10 +1,9 @@
 package database.cms.service;
 
 import database.cms.DTO.request.FeedbackSubmitRequest;
-import database.cms.DTO.response.AllFeedbackResponse;
+import database.cms.DTO.response.FeedbackResponse;
 import database.cms.DTO.response.FeedbackCheckResponse;
 import database.cms.DTO.response.MessageResponse;
-import database.cms.DTO.response.NegativeFeedbackResponse;
 import database.cms.entity.Appointment;
 import database.cms.entity.Feedback;
 import database.cms.entity.User;
@@ -60,8 +59,21 @@ public class FeedbackService {
         return new MessageResponse("success");
     }
 
-    public AllFeedbackResponse getAllFeedback() {
-        return new AllFeedbackResponse(feedbackRepository.findAll());
+    public List<FeedbackResponse> getAllFeedback() {
+        List<Feedback> feedbacks = feedbackRepository.findAll();
+        List<FeedbackResponse> feedbackResponses = new ArrayList<>();
+        for (Feedback feedback : feedbacks) {
+            FeedbackResponse response = new FeedbackResponse(
+                    feedback.getId(),
+                    feedback.getUser().getId(),
+                    feedback.getAppointment().getId(),
+                    feedback.getRating(),
+                    feedback.getComment(),
+                    feedback.getCreatedAt()
+            );
+        }
+        return feedbackResponses;
+
     }
 
     public FeedbackCheckResponse getFeedbackCheck(Long appointmentId) {
@@ -73,17 +85,4 @@ public class FeedbackService {
         return new FeedbackCheckResponse(appointment.getFeedbacks());
     }
 
-    public NegativeFeedbackResponse getNegativeFeedback(Long appointmentId) {
-        Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(()-> new ResourceNotFoundException("APPOINTMENT_NOT_FOUND", "订单不存在"));
-
-        if (appointment.getFeedbacks().isEmpty()) return null;
-
-        List<Feedback> feedbacks = new ArrayList<>();
-        for (Feedback feedback : appointment.getFeedbacks()) {
-            if (feedback.getRating() - 3 < 1e-4) feedbacks.add(feedback);
-        }
-
-        return new NegativeFeedbackResponse(feedbacks);
-    }
 }

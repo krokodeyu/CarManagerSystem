@@ -73,7 +73,7 @@ public class Appointment {
     @Column(name = "total_hours")
     private Integer totalHours;
 
-    @Column(name = "total_cost")
+    @Column(name = "total_cost", nullable = true)
     private Double totalCost;
 
     // Getters and setters omitted for brevity

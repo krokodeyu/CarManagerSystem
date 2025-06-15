@@ -1,15 +1,16 @@
 package database.cms.controller;
 
 import database.cms.DTO.request.FeedbackSubmitRequest;
-import database.cms.DTO.response.AllFeedbackResponse;
+import database.cms.DTO.response.FeedbackResponse;
 import database.cms.DTO.response.FeedbackCheckResponse;
 import database.cms.DTO.response.MessageResponse;
-import database.cms.DTO.response.NegativeFeedbackResponse;
 import database.cms.service.FeedbackService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /*
 方法	路径	描述	权限
@@ -40,8 +41,8 @@ public class FeedbackController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<AllFeedbackResponse> getAllFeedback() {
-        AllFeedbackResponse response = feedbackService.getAllFeedback();
+    public ResponseEntity<List<FeedbackResponse>> getAllFeedback() {
+        List<FeedbackResponse> response = feedbackService.getAllFeedback();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -51,9 +52,4 @@ public class FeedbackController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/negative/{appointmentId}")
-    public ResponseEntity<NegativeFeedbackResponse> negativeFeedback(@PathVariable Long appointmentId) {
-        NegativeFeedbackResponse response = feedbackService.getNegativeFeedback(appointmentId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 }

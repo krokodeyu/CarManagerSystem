@@ -5,6 +5,8 @@ import database.cms.entity.SalaryRecord;
 import java.util.List;
 
 public record SalaryRecordResponse (
-        List<SalaryRecord> salaryRecords
+        Long id,
+        Long techId,
+        Double amount
 ){
 }

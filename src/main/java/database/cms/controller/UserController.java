@@ -7,9 +7,11 @@ import database.cms.DTO.response.RegisterResponse;
 import database.cms.DTO.response.UserInfoResponse;
 import database.cms.service.SecurityService;
 import database.cms.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,8 +63,8 @@ public class UserController {
 
     @GetMapping("/check-notification/{userId}")
     @PreAuthorize("@securityService.isOwner(authentication, #userId)")
-    public ResponseEntity<?> checkNotification(@PathVariable Long userId) {
-        NotificationResponse response = userService.checkNotification(userId);
+    public ResponseEntity<?> checkNotification(@PathVariable Long userId, Authentication authentication) {
+        List<NotificationResponse> response = userService.checkNotification(userId, authentication);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

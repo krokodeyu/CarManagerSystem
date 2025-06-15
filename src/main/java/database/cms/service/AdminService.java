@@ -3,21 +3,20 @@ package database.cms.service;
 import database.cms.DTO.request.*;
 import database.cms.DTO.response.*;
 import database.cms.detail.CustomUserDetails;
-import database.cms.entity.SalaryRecord;
-import database.cms.entity.Technician;
-import database.cms.entity.User;
-import database.cms.entity.Vehicle;
+import database.cms.entity.*;
 import database.cms.exception.ResourceNotFoundException;
 import database.cms.repository.*;
+import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Pageable;
-import database.cms.entity.Order;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -48,8 +47,33 @@ public class AdminService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("USER_NOT_FOUND", "没有找到该用户"));
+        List<Long> vehicleIds = new ArrayList<>();
+        List<Long> appointmentIds = new ArrayList<>();
+        List<Long> feedbackIds = new ArrayList<>();
 
-        return new UserCheckResponse(user);
+        List<Vehicle> vehicles = user.getVehicles();
+        List<Appointment> appointments = user.getAppointments();
+        List<Feedback> feedbacks = user.getFeedbacks();
+
+        for (Vehicle vehicle : vehicles) {
+            vehicleIds.add(vehicle.getId());
+        }
+        for (Appointment appointment : appointments) {
+            appointmentIds.add(appointment.getId());
+        }
+        for (Feedback feedback : feedbacks) {
+            feedbackIds.add(feedback.getId());
+        }
+
+        return new UserCheckResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt(),
+                vehicleIds,
+                appointmentIds,
+                feedbackIds
+        );
     }
 
     public TechnicianCheckResponse checkTechnician(Long technicianId) {
@@ -57,38 +81,38 @@ public class AdminService {
         Technician technician = technicianRepository.findById(technicianId)
                 .orElseThrow(()-> new ResourceNotFoundException("TECH_NOT_FOUND","无效的技工id"));
 
-        return new TechnicianCheckResponse(technician);
+        List<Long> appointmentIds = new ArrayList<>();
+        List<Appointment> appointments = technician.getAppointments();
+        for (Appointment appointment : appointments) {
+            appointmentIds.add(appointment.getId());
+        }
+
+        return new TechnicianCheckResponse(
+                technician.getId(),
+                technician.getName(),
+                technician.getPhone(),
+                technician.getSpecialization(),
+                technician.getCreatedAt(),
+                appointmentIds
+        );
     }
 
-    public SalaryRecordResponse checkAllSalaryRecord(){
+    public List<SalaryRecordResponse> checkAllSalaryRecord(){
 
         List<SalaryRecord> records = salaryRecordRepository.findAll();
+        List<SalaryRecordResponse> responses = new ArrayList<>();
+        for (SalaryRecord r : records) {
+            SalaryRecordResponse response = new SalaryRecordResponse(
+                    r.getId(),
+                    r.getTechnician().getId(),
+                    r.getAmount()
+            );
+            responses.add(response);
+        }
+        return responses;
 
-        return new SalaryRecordResponse(records);
     }
 
-    public VehicleCheckResponse checkVehicle(Long vehicleId){
-
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(()-> new ResourceNotFoundException("VEHICLE_NOT_FOUND", "无效的车辆id"));
-
-        return new VehicleCheckResponse(vehicle);
-    }
-
-    public OrderCheckResponse checkOrder(Long orderId){
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(()-> new ResourceNotFoundException("ORDER_NOT_FOUND", "无效订单号"));
-
-        return new OrderCheckResponse(order);
-    }
-
-    public MaintenanceRecordResponse checkAllMaintenanceRecord(){
-
-        List<Order> orders = orderRepository.findAll();
-
-        return new MaintenanceRecordResponse(orders);
-    }
 
     @Transactional
     public MessageResponse changePassword(Authentication auth, ChangePasswordRequest request) {
@@ -114,55 +138,70 @@ public class AdminService {
 
 
     public AverageRepairFeeResponse statsAverageRepairFees(String model){
+        List<Appointment.Status> excludedStatuses = Arrays.asList(Appointment.Status.CANCELLED, Appointment.Status.UNACCEPTED);
 
-        Object[] result = vehicleRepository.sumTotalCostAndCount(model);
+        Tuple result = vehicleRepository.sumTotalCostAndCount(model, excludedStatuses);
 
-        double totalFee = (Double) result[0];
-        Long count = (Long) result[1];
+        Double totalFee = result.get(0, Double.class);
+        Long count = result.get(1, Long.class);
+
+        if (count == 0){
+            return new AverageRepairFeeResponse(0.0);
+        }
 
         return new AverageRepairFeeResponse(totalFee / count);
     }
 
     public RepairFrequenciesResponse statsFrequencies(){
 
-        List<Object[]> response = vehicleRepository.countValidAppointmentsByModel();
+        List<Appointment.Status> excludedStatuses = Arrays.asList(Appointment.Status.CANCELLED, Appointment.Status.UNACCEPTED);
+        List<Tuple> response = vehicleRepository.countValidAppointmentsByModel(excludedStatuses);
 
         return new RepairFrequenciesResponse(response);
     }
 
-    public MostFrequentFailuresResponse statsMostFrequentFailures(String model){
+    public List<MostFrequentFailuresResponse> statsMostFrequentFailures(String model){
 
-        List<Object[]> responses = appointmentRepository.findMostFrequentFailureByModel(model, Pageable.ofSize(3));
+        List<Tuple> results = appointmentRepository.findMostFrequentFailureByModel(model, Pageable.ofSize(3));
 
-        return new MostFrequentFailuresResponse(responses.stream()
-                .map(response -> (String) response[0])  // 提取 description
-                .collect(Collectors.toList()));
+        List<MostFrequentFailuresResponse> responses = new ArrayList<>();
+
+        for (Tuple t : results) {
+            MostFrequentFailuresResponse response = new MostFrequentFailuresResponse(
+                    t.get("description", String.class),
+                    t.get("count", Long.class));
+            responses.add(response);
+        }
+
+        return responses;
+
+
     }
 
     public FeeProportionResponse statsFeeProportions(Integer year, Integer month){
 
-        List<Object[]> responses = appointmentRepository.findCostProportionByMonth(year, month);
+        List<Tuple> responses = appointmentRepository.findCostProportionByMonth(year, month);
 
         return new FeeProportionResponse(responses);
     }
 
     public NegativeCommentOrdersResponse statsNegativeCommentOrders(){
 
-        List<Object[]> responses = feedbackRepository.findNegativeFeedbacksWithAppointmentAndTechnician();
+        List<Tuple> responses = feedbackRepository.findNegativeFeedbacksWithAppointmentAndTechnician();
 
         return new NegativeCommentOrdersResponse(responses);
     }
 
     public TechnicianPerformanceResponse statsTechnicianPerformance(){
 
-        List<Object[]> responses = appointmentRepository.countAppointmentsBySpecialization();
+        List<Tuple> responses = appointmentRepository.countAppointmentsBySpecialization();
 
         return new TechnicianPerformanceResponse(responses);
     }
 
     public UnresolvedOrdersResponse statsUnresolvedOrders(){
-
-        List<Object[]> responses = appointmentRepository.selectUnresolvedOrders();
+        List<Appointment.Status> resolvedOrderStatus = Arrays.asList(Appointment.Status.CANCELLED, Appointment.Status.FINISHED);
+        List<Tuple> responses = appointmentRepository.selectUnresolvedOrders(resolvedOrderStatus);
 
         return new UnresolvedOrdersResponse(responses);
     }

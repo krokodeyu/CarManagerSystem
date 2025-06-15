@@ -1,6 +1,7 @@
 package database.cms.repository;
 
 import database.cms.entity.Appointment;
+import jakarta.persistence.Tuple;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,14 +29,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Object[]> findAppointmentsByStatus(@Param("status") Appointment.Status status);
 
 
-    @Query("SELECT ri.description, COUNT(ri) " +
+    @Query("SELECT ri.description as description, COUNT(ri) as count " +
             "FROM Appointment a " +
             "JOIN a.vehicle v " +
             "JOIN a.repairItems ri " +
             "WHERE v.model = :model " +
             "GROUP BY ri.description " +
             "ORDER BY COUNT(ri) DESC")
-    List<Object[]> findMostFrequentFailureByModel(
+    List<Tuple> findMostFrequentFailureByModel(
             @Param("model") String model,
             Pageable pageable
     );
@@ -47,7 +48,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "AND FUNCTION('MONTH', a.createdAt) = :month " +
             "GROUP BY ap.sparePart.name " +
             "ORDER BY SUM(ap.sparePart.price * ap.quantity) DESC")
-    List<Object[]> findCostProportionByMonth(
+    List<Tuple> findCostProportionByMonth(
             @Param("year") int year,
             @Param("month") int month
     );
@@ -57,13 +58,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "JOIN a.technician t " +
             "GROUP BY t.specialization " +
             "ORDER BY COUNT(a) DESC")
-    List<Object[]> countAppointmentsBySpecialization();
+    List<Tuple> countAppointmentsBySpecialization();
 
 
     @Query("SELECT a.id " +
             "FROM Appointment a " +
             "WHERE a.status NOT IN :resolvedOrderStatus ")
-    List<Object[]> selectUnresolvedOrders();
+    List<Tuple> selectUnresolvedOrders(@Param("resolvedOrderStatus") List<Appointment.Status> resolvedOrderStatus);
 
 
 }
