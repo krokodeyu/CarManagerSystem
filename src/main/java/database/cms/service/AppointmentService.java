@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AppointmentService {
@@ -40,6 +41,20 @@ public class AppointmentService {
         this.vehicleRepository = vehicleRepository;
         this.technicianRepository = technicianRepository;
         this.notificationRepository = notificationRepository;
+    }
+
+    private String generateAppointmentId(){
+        String appointmentId;
+
+        do {
+            UUID uuid = UUID.randomUUID();
+            appointmentId = uuid.toString()
+                    .replace("-", "")  // 移除连字符
+                    .substring(0, 16)  // 截取前16位
+                    .toUpperCase();
+        } while (appointmentRepository.existsByAppointmentId(appointmentId));
+
+        return appointmentId;
     }
 
     public AppointmentResponse createAppointment(AppointmentRequest request, Authentication authentication){
@@ -60,10 +75,10 @@ public class AppointmentService {
 
         return new AppointmentResponse(
                 appointment.getId(),
-                appointment.getAppointmentId(),
+                generateAppointmentId(),
+                user.getId(),
                 vehicle.getId(),
                 null,
-                appointment.getTechnician().getId(),
                 Appointment.Status.UNACCEPTED,
                 appointment.getCreatedAt(),
                 LocalDateTime.now()
