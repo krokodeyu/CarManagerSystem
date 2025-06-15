@@ -29,12 +29,10 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
-    private final AppointmentService appointmentService;
 
 
-    public AdminController(AdminService adminService, AppointmentService appointmentService) {
+    public AdminController(AdminService adminService) {
         this.adminService = adminService;
-        this.appointmentService = appointmentService;
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -92,9 +90,10 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/pay-technician")
-    public ResponseEntity<?> payTechnician(@RequestBody PaymentRequest request) {
+    public ResponseEntity<MessageResponse> payTechnician(@RequestBody PaymentRequest request) {
         adminService.payTechnician(request.technicianId(), request.amount());
-        return new ResponseEntity<>(HttpStatus.OK);
+        MessageResponse response = new MessageResponse("success");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

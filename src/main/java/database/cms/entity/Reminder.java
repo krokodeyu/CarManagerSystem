@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "remider")
+@Table(name = "reminder")
 @Data
 public class Reminder {
     @Id
@@ -26,6 +26,6 @@ public class Reminder {
     @CreationTimestamp
     LocalDateTime createdAt;
 
-    @Column(name = "read")
+    @Column(name = "is_read")
     boolean read = false;
 }

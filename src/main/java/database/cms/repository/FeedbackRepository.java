@@ -15,7 +15,7 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
             "FROM Feedback f " +
             "JOIN f.appointment a " +          // 关联 Appointment
             "JOIN a.technician t " +           // 关联 Technician
-            "WHERE f.rating < 3")               // 筛选条件
+            "WHERE f.rating < 3 ")               // 筛选条件
     List<Object[]> findNegativeFeedbacksWithAppointmentAndTechnician();
 }
 

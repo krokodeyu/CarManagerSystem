@@ -50,6 +50,8 @@ public class SecurityService {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
+        System.out.println("用户ID：" + userId);
+        System.out.println("订单ID：" + orderId);
 
         return appointmentRepository.existsByIdAndUserId(orderId, userId);
     }

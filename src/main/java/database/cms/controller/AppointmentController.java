@@ -7,6 +7,7 @@ import database.cms.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /*预约管理 `/appointments`
@@ -34,9 +35,10 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
+    @PreAuthorize("@securityService.isVehicleOwner(authentication, #request.vehicleId())")
     @PostMapping("/create")
-    public ResponseEntity<AppointmentResponse> createAppointment (@RequestBody AppointmentRequest request){
-        AppointmentResponse response = appointmentService.createAppointment(request);
+    public ResponseEntity<AppointmentResponse> createAppointment (@RequestBody AppointmentRequest request, Authentication authentication){
+        AppointmentResponse response = appointmentService.createAppointment(request, authentication);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -61,13 +63,13 @@ public class AppointmentController {
 
     @PreAuthorize("hasRole('TECH')")
     @PostMapping("/confirm")
-    public ResponseEntity<AppointmentConfirmationResponse> confirmAppointment (@RequestBody AppointmentConfirmationRequest request){
-        AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request);
+    public ResponseEntity<AppointmentConfirmationResponse> confirmAppointment (@RequestBody AppointmentConfirmationRequest request, Authentication authentication){
+        AppointmentConfirmationResponse response = appointmentService.confirmAppointment(request, authentication);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/{orderId}/reminder")
-    @PreAuthorize("hasRole('ADMIN') or @securityService.isOrderUser(authentication, orderId)")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isOrderUser(authentication, #orderId)")
     public ResponseEntity<MessageResponse> remindAppointment(
             @PathVariable Long orderId
     ) {

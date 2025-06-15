@@ -56,11 +56,12 @@ public class Technician {
         this.encryptedPassword = encryptedPassword;
     }
 
-    public void addReminder(Appointment appointment){
+    public Reminder addReminder(Appointment appointment){
         Reminder reminder = new Reminder();
         reminder.setTechnician(this);
         reminder.setAppointment(appointment);
         reminders.add(reminder);
+        return reminder;
     }
 
     public Technician() {

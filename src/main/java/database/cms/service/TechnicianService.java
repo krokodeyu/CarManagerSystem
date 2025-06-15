@@ -27,14 +27,16 @@ public class TechnicianService {
     private final RepairItemRepository repairItemRepository;
     private final AppointmentRepository appointmentRepository;
     private final SparePartRepository sparePartRepository;
+    private final SalaryRecordRepository salaryRecordRepository;
 
-    public TechnicianService(TechnicianRepository technicianRepository, NotificationRepository notificationRepository, RepairItemRepository repairItemRepository, AppointmentRepository appointmentRepository, SparePartRepository sparePartRepository) {
+    public TechnicianService(TechnicianRepository technicianRepository, NotificationRepository notificationRepository, RepairItemRepository repairItemRepository, AppointmentRepository appointmentRepository, SparePartRepository sparePartRepository, SalaryRecordRepository salaryRecordRepository) {
         this.technicianRepository = technicianRepository;
         this.notificationRepository = notificationRepository;
         this.repairItemRepository = repairItemRepository;
         this.sparePartRepository = sparePartRepository;
         passwordEncoder = new BCryptPasswordEncoder();
         this.appointmentRepository = appointmentRepository;
+        this.salaryRecordRepository = salaryRecordRepository;
     }
 
     @Transactional(readOnly = true)
@@ -224,6 +226,13 @@ public class TechnicianService {
         appointment.getAppointmentParts().remove(appointmentPart);
 
         return new MessageResponse("已删除订单配件！");
+    }
+
+    public AvgSalaryResponse calculateAvgSalary(Authentication authentication) {
+        CustomUserDetails details = (CustomUserDetails) authentication.getPrincipal();
+        Long techId = details.getId();
+        Double avgSalary = salaryRecordRepository.findDailyAverageSalaryByTechnicianId(techId);
+        return new AvgSalaryResponse(avgSalary);
     }
 }
 /*
