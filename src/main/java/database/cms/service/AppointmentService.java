@@ -164,7 +164,13 @@ public class AppointmentService {
 
             notification.setContent("The technician has confirmed the appointment!");
             notificationRepository.save(notification);
+
             admin.getNotification().add(notification);
+            userRepository.save(admin);
+
+            User user = existingAppointment.getUser();
+            user.getNotification().add(notification);
+            userRepository.save(user);
 
             return new AppointmentConfirmationResponse(true, request.appointmentId());
         } else {
