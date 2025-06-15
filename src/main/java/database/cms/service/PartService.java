@@ -78,8 +78,10 @@ public class PartService {
         SparePart OriginalPart = sparePartRepository.findById(request.partId())
                 .orElseThrow(()-> new ResourceNotFoundException("PART_NOT_FOUND", "配件不存在"));
 
-        request.updatedSparePart().setId(request.partId());
-        sparePartRepository.save(request.updatedSparePart());
+        if(request.name().isPresent()) OriginalPart.setName(request.name().get());
+        if(request.price().isPresent()) OriginalPart.setPrice(request.price().get());
+        if(request.quantity().isPresent()) OriginalPart.setQuantity(request.quantity().get());
+        sparePartRepository.save(OriginalPart);
 
         return new MessageResponse("Successfully updated part!");
     }
