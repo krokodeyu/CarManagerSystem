@@ -1,133 +1,122 @@
-CREATE TABLE `appointments` (
-    `id` bigint NOT NULL AUTO_INCREMENT,
-    `appointment_id` varchar(255) DEFAULT NULL,
-    `user_id` bigint NOT NULL,
-    `vehicle_id` bigint NOT NULL,
-    `technician_id` bigint DEFAULT NULL,
-    `appointment_time` datetime NOT NULL,
-    `status` enum('UNACCEPTED','ONGOING','CANCELLED','FINISHED') NOT NULL DEFAULT 'UNACCEPTED',
-    `created_at` datetime NOT NULL,
-    `updated_at` datetime NOT NULL,
-    `total_cost` double NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `fk_appointment_user` (`user_id`),
-    KEY `fk_appointment_vehicle` (`vehicle_id`),
-    KEY `fk_appointment_technician` (`technician_id`),
-    CONSTRAINT `fk_appointment_technician` FOREIGN KEY (`technician_id`) REFERENCES `technicians` (`id`),
-    CONSTRAINT `fk_appointment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-    CONSTRAINT `fk_appointment_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- 用户表
+CREATE TABLE users (
+                       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                       role VARCHAR(20) NOT NULL DEFAULT 'USER',
+                       name VARCHAR(255) NOT NULL UNIQUE,
+                       email VARCHAR(255) NOT NULL UNIQUE,
+                       created_at DATETIME NOT NULL,
+                       updated_at DATETIME NOT NULL,
+                       encrypted_password VARCHAR(255) NOT NULL
+);
 
+-- 反馈表
+CREATE TABLE feedbacks (
+                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                           user_id BIGINT NOT NULL,
+                           appointment_id BIGINT NOT NULL,
+                           rating INT NOT NULL,
+                           comment TEXT,
+                           created_at DATETIME NOT NULL,
+                           FOREIGN KEY (user_id) REFERENCES users(id),
+                           FOREIGN KEY (appointment_id) REFERENCES appointments(id)
+);
 
-CREATE TABLE `feedbacks` (
-     `id` bigint NOT NULL AUTO_INCREMENT,
-     `user_id` bigint NOT NULL,
-     `repair_order_id` bigint NOT NULL,
-     `rating` int NOT NULL,
-     `comment` text,
-     `created_at` datetime NOT NULL,
-     PRIMARY KEY (`id`),
-     KEY `fk_feedback_user` (`user_id`),
-     KEY `fk_feedback_repair_order` (`repair_order_id`),
-     CONSTRAINT `fk_feedback_repair_order` FOREIGN KEY (`repair_order_id`) REFERENCES `repair_orders` (`id`),
-     CONSTRAINT `fk_feedback_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- 维修项目表
+CREATE TABLE repair_items (
+                              id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                              repair_appointment_id BIGINT NOT NULL,
+                              description TEXT NOT NULL,
+                              cost DOUBLE NOT NULL,
+                              created_at DATETIME NOT NULL,
+                              FOREIGN KEY (repair_appointment_id) REFERENCES appointments(id)
+);
 
+-- 工资记录表
+CREATE TABLE salary_record (
+                               id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                               technician_id BIGINT,
+                               amount DOUBLE NOT NULL,
+                               created_at DATETIME NOT NULL,
+                               FOREIGN KEY (technician_id) REFERENCES technicians(id)
+);
 
-CREATE TABLE `order_parts` (
-    `id` bigint NOT NULL AUTO_INCREMENT,
-    `repair_order_id` bigint NOT NULL,
-    `spare_part_id` bigint NOT NULL,
-    `quantity` int NOT NULL,
-    `unit_price` decimal(10,2) NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `fk_order_part_repair_order` (`repair_order_id`),
-    KEY `fk_order_part_spare_part` (`spare_part_id`),
-    CONSTRAINT `fk_order_part_repair_order` FOREIGN KEY (`repair_order_id`) REFERENCES `repair_orders` (`id`),
-    CONSTRAINT `fk_order_part_spare_part` FOREIGN KEY (`spare_part_id`) REFERENCES `spare_parts` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- 通知表
+CREATE TABLE notification (
+                              id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                              appointment_id BIGINT,
+                              user_id BIGINT,
+                              technician_id BIGINT,
+                              content TEXT NOT NULL,
+                              FOREIGN KEY (user_id) REFERENCES users(id),
+                              FOREIGN KEY (technician_id) REFERENCES technicians(id)
+);
 
+-- 提醒表
+CREATE TABLE reminder (
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          appointment_id BIGINT,
+                          technician_id BIGINT,
+                          created_at DATETIME NOT NULL,
+                          is_read BOOLEAN NOT NULL DEFAULT FALSE,
+                          FOREIGN KEY (appointment_id) REFERENCES appointments(id),
+                          FOREIGN KEY (technician_id) REFERENCES technicians(id)
+);
 
-CREATE TABLE `repair_items` (
-    `id` bigint NOT NULL AUTO_INCREMENT,
-    `repair_order_id` bigint NOT NULL,
-    `description` varchar(255) NOT NULL,
-    `cost` decimal(10,2) NOT NULL,
-    `created_at` datetime NOT NULL,
-    PRIMARY KEY (`id`),
-    KEY `fk_repair_item_repair_order` (`repair_order_id`),
-    CONSTRAINT `fk_repair_item_repair_order` FOREIGN KEY (`repair_order_id`) REFERENCES `repair_orders` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- 备件表
+CREATE TABLE spare_parts (
+                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                             name VARCHAR(255) NOT NULL UNIQUE,
+                             price DOUBLE NOT NULL,
+                             quantity INT NOT NULL,
+                             created_at DATETIME NOT NULL
+);
 
+-- 技术人员表
+CREATE TABLE technicians (
+                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                             role VARCHAR(20) NOT NULL DEFAULT 'TECH',
+                             name VARCHAR(255) NOT NULL,
+                             phone VARCHAR(20) NOT NULL UNIQUE,
+                             specialization VARCHAR(255) NOT NULL,
+                             created_at DATETIME NOT NULL,
+                             encrypted_password VARCHAR(255) NOT NULL
+);
 
-CREATE TABLE `repair_orders` (
-     `id` bigint NOT NULL AUTO_INCREMENT,
-     `user_id` bigint NOT NULL,
-     `vehicle_id` bigint NOT NULL,
-     `technician_id` bigint DEFAULT NULL,
-     `status` enum('UNACCEPTED','ONGOING','FINISHED','CANCELLED') NOT NULL,
-     `total_cost` decimal(10,2) NOT NULL,
-     `created_at` datetime NOT NULL,
-     `updated_at` datetime NOT NULL,
-     PRIMARY KEY (`id`),
-     KEY `fk_repair_order_user` (`user_id`),
-     KEY `fk_repair_order_vehicle` (`vehicle_id`),
-     KEY `fk_repair_order_technician` (`technician_id`),
-     CONSTRAINT `fk_repair_order_technician` FOREIGN KEY (`technician_id`) REFERENCES `technicians` (`id`),
-     CONSTRAINT `fk_repair_order_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-     CONSTRAINT `fk_repair_order_vehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- 车辆表
+CREATE TABLE vehicles (
+                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          expired BOOLEAN NOT NULL DEFAULT FALSE,
+                          user_id BIGINT NOT NULL,
+                          model VARCHAR(255) NOT NULL,
+                          created_at DATETIME NOT NULL,
+                          license_plate VARCHAR(20) NOT NULL UNIQUE,
+                          FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
+-- 预约表
+CREATE TABLE appointments (
+                              id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                              appointment_id VARCHAR(255) NOT NULL,
+                              user_id BIGINT NOT NULL,
+                              vehicle_id BIGINT NOT NULL,
+                              technician_id BIGINT,
+                              status VARCHAR(20) NOT NULL DEFAULT 'UNACCEPTED',
+                              created_at DATETIME NOT NULL,
+                              updated_at DATETIME NOT NULL,
+                              total_hours INT,
+                              total_cost DOUBLE,
+                              FOREIGN KEY (user_id) REFERENCES users(id),
+                              FOREIGN KEY (vehicle_id) REFERENCES vehicles(id),
+                              FOREIGN KEY (technician_id) REFERENCES technicians(id)
+);
 
-CREATE TABLE `spare_parts` (
-   `id` bigint NOT NULL AUTO_INCREMENT,
-   `name` varchar(255) NOT NULL,
-   `description` text,
-   `price` decimal(10,2) NOT NULL,
-   `quantity` int NOT NULL,
-   `created_at` datetime NOT NULL,
-   PRIMARY KEY (`id`),
-   UNIQUE KEY `uk_spare_part_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-CREATE TABLE `technicians` (
-   `id` bigint NOT NULL AUTO_INCREMENT,
-   `role` enum('TECH','ADMIN','USER') DEFAULT 'TECH',
-   `name` varchar(255) NOT NULL,
-   `phone` varchar(20) NOT NULL,
-   `specialization` varchar(255) NOT NULL,
-   `created_at` datetime NOT NULL,
-   `encrypted_password` varchar(255) NOT NULL,
-   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-CREATE TABLE `users` (
-     `id` bigint NOT NULL AUTO_INCREMENT,
-     `role` enum('USER','ADMIN','TECH') DEFAULT NULL,
-     `name` varchar(255) NOT NULL,
-     `email` varchar(255) NOT NULL,
-     `created_at` datetime NOT NULL,
-     `updated_at` datetime NOT NULL,
-     `encrypted_password` varchar(255) NOT NULL,
-     PRIMARY KEY (`id`),
-     UNIQUE KEY `uk_user_name` (`name`),
-     UNIQUE KEY `uk_user_email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-CREATE TABLE `vehicles` (
-    `id` bigint NOT NULL AUTO_INCREMENT,
-    `user_id` bigint NOT NULL,
-    `make` varchar(50) NOT NULL,
-    `model` varchar(50) NOT NULL,
-    `license_plate` varchar(20) NOT NULL,
-    `year` int NOT NULL,
-    `created_at` datetime NOT NULL,
-    `updated_at` datetime NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_vehicle_license_plate` (`license_plate`),
-    KEY `fk_vehicle_user` (`user_id`),
-    CONSTRAINT `fk_vehicle_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- 预约备件表
+CREATE TABLE appointment_parts (
+                                   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                   appointment_id BIGINT NOT NULL,
+                                   spare_part_id BIGINT NOT NULL,
+                                   quantity INT NOT NULL,
+                                   unit_price DOUBLE NOT NULL,
+                                   FOREIGN KEY (appointment_id) REFERENCES appointments(id),
+                                   FOREIGN KEY (spare_part_id) REFERENCES spare_parts(id)
+);
