@@ -78,7 +78,7 @@ public class AppointmentController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/check-by-status")
     public ResponseEntity<?> checkAppointmentByStatus(@RequestParam Appointment.Status status) {
-        AppointmentByStatusResponse response = appointmentService.getApppintmentByStatus(status);
+        AppointmentByStatusResponse response = appointmentService.getAppointmentByStatus(status);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

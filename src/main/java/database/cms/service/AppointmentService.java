@@ -156,7 +156,7 @@ public class AppointmentService {
         return new MessageResponse("success");
     }
 
-    public AppointmentByStatusResponse getApppintmentByStatus(Appointment.Status status){
+    public AppointmentByStatusResponse getAppointmentByStatus(Appointment.Status status){
 
         List<Object[]> results = appointmentRepository.findAppointmentsByStatus(status);
 
